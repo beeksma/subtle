@@ -16,7 +16,7 @@ class OSHandler(object):
         print("\nWelcome to Subtle! Attempting to connect to OpenSubtitles...")
         try:
             self.xml_rpc = ServerProxy(OSHandler.server_url, allow_none=True)
-            self.language = None
+            self.language = []
             self.user_token = None
             self.query_result = None
             self.server_info = self.xml_rpc.ServerInfo()
@@ -33,10 +33,10 @@ class OSHandler(object):
         try:
             self.query_result = self.xml_rpc.LogIn(username, hashed_password, self.language, self.user_agent)
             self.user_token = self._extract_data('token')
-            self.language = self._extract_data('data')['UserPreferedLanguages']
+            self.language = (self._extract_data('data')['UserPreferedLanguages']).split(",")
 
             print("""Login successful. Token set to "{token:s}", preferred language for subtitles set to '{lang:s}'."""
-                  .format(token=self.user_token, lang=self.language))
+                  .format(token=self.user_token, lang=",".join(self.language)))
             self.query_result = None
         except TypeError:
                 print("Error: Login unsuccessful. Please check your login information and try again.")
