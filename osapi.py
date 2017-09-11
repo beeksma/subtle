@@ -6,16 +6,16 @@ import hashlib
 import sys
 
 
-class OSConnection(object):
+class OSHandler(object):
     """"The connection to the OpenSubtitles server using XML RPC"""
 
     server_url = 'https://api.opensubtitles.org:443/xml-rpc'
     user_agent = 'OSTestUserAgentTemp'
 
     def __init__(self):
-        print("Attempting to connect to OpenSubtitles...\n")
+        print("\nWelcome to Subtle! Attempting to connect to OpenSubtitles...")
         try:
-            self.xml_rpc = ServerProxy(OSConnection.server_url, allow_none=True)
+            self.xml_rpc = ServerProxy(OSHandler.server_url, allow_none=True)
             self.language = None
             self.user_token = None
             self.query_result = None
@@ -28,17 +28,35 @@ class OSConnection(object):
         return self.query_result.get(key) if self.query_result.get('status').split()[0] == '200' else None
 
     def login(self, username, password):
+        print("\nLogging in...")
         hashed_password = hashlib.md5(password.encode('utf-8')).hexdigest()
-        self.query_result = self.xml_rpc.LogIn(username, hashed_password, self.language, self.user_agent)
         try:
+            self.query_result = self.xml_rpc.LogIn(username, hashed_password, self.language, self.user_agent)
             self.user_token = self._extract_data('token')
             self.language = self._extract_data('data')['UserPreferedLanguages']
 
-            print("Login successful. Token set to '{token:s}', language set to '{lang:s}'."
+            print("""Login successful. Token set to "{token:s}", preferred language for subtitles set to '{lang:s}'."""
                   .format(token=self.user_token, lang=self.language))
             self.query_result = None
         except TypeError:
                 print("Error: Login unsuccessful. Please check your login information and try again.")
+        except TimeoutError:  # Throw exception if we can't connect to OpenSubtitles
+            print("Error: Could not connect to OpenSubtitles.org")
+
+    def logout(self):
+        print("\nLogging out...")
+        if isinstance(self.user_token, str):
+            try:
+                self.query_result = self.xml_rpc.LogOut(self.user_token)
+                if self._extract_data('status'):
+                    print("Successfully logged out. Thanks for using Subtle!")
+                else:
+                    print("Error: {}".format(self._extract_data('status')))
+            except TimeoutError:  # Throw exception if we can't connect to OpenSubtitles
+                print("Error: Could not connect to OpenSubtitles.org")
+                return
+        else:
+            print("Error: You can't be logged out as you're not logged in!")
 
 
 def hash_file(name):
