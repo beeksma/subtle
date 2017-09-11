@@ -1,6 +1,6 @@
 from xmlrpc.client import ServerProxy, ProtocolError
 from socket import gaierror
-from components import timed_event
+from components import TimedEvent
 import hashlib
 import sys
 
@@ -18,7 +18,7 @@ class OSHandler(object):
             self.language = []
             self.user_token = None
             self.__logged_in = False
-            self.keep_alive_timer = timed_event(900, self._no_operation, autostart=False)
+            self.keep_alive_timer = TimedEvent(900, self._no_operation, autostart=False)
             self.query_result = None
             self.server_info = self.xml_rpc.ServerInfo()
         except (gaierror, ProtocolError):  # Throw exception and exit if we can't connect to OpenSubtitles

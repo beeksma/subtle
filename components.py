@@ -3,7 +3,7 @@ import os
 import struct
 
 
-class timed_event(object):
+class TimedEvent(object):
     # Based on code from: https://stackoverflow.com/questions/2398661/schedule-a-repeating-event-in-python-3
     """
     A periodic task running in threading.Timers
