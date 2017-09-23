@@ -25,14 +25,6 @@ class OSHandler(object):
             print("Error: Could not connect to OpenSubtitles.org")
             sys.exit(2)
 
-    def __del__(self, exc_type, exc_val, exc_tb):
-        if self.logged_in:
-            try:
-                self.logout()
-            except (gaierror, ProtocolError):  # Throw exception and exit if we can't connect to OpenSubtitles
-                print("Error: Could not connect to OpenSubtitles.org")
-                sys.exit(2)
-
     @property
     def logged_in(self):
         self.keep_alive_timer.reset()
