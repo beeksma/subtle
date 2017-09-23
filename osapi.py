@@ -1,6 +1,7 @@
 from xmlrpc.client import ServerProxy, ProtocolError
 from socket import gaierror
-from components import TimedEvent
+from components import TimedEvent, hash_file
+from os import path
 import hashlib
 import sys
 
@@ -27,11 +28,13 @@ class OSHandler(object):
 
     @property
     def logged_in(self):
+        # Calling the 'logged_in' property will reset the timer that keeps the connection alive
         self.keep_alive_timer.reset()
         return self.__logged_in
 
     @logged_in.setter
     def logged_in(self, value):
+        # Setting the 'logged_in' property will start or stop the timer that keeps the connection alive
         self.__logged_in = value
         self.keep_alive_timer.start() if value else self.keep_alive_timer.stop()
 
@@ -80,9 +83,71 @@ class OSHandler(object):
             try:
                 self.query_result = self.xml_rpc.NoOperation(self.user_token)
                 if self._extract_data('status').split()[0] != '200':
+                    self.logged_in = False
                     print("Your session timed out, please use Login before doing anything else")
                 else:
                     print("Staying alive...")
             except TimeoutError:  # Throw exception if we can't connect to OpenSubtitles
                 print("Error: Could not connect to OpenSubtitles.org")
                 return
+
+    def search_subtitles(self, video_filename, imdb_id=None, limit=500):
+        if self.logged_in and video_filename is not None and limit <= 500:
+            # try:
+                # Get video info
+                video = open(video_filename, "rb")
+                file_base = path.basename(video_filename)
+                file_size = path.getsize(video_filename)
+                video_hash = hash_file(video, file_size)
+                video.close()
+
+                # Set params
+                languages = ','.join(self.language)
+                hash_params = \
+                    {
+                        'sublanguageid': languages,
+                        'moviehash': video_hash,
+                        'moviebytesize': str(file_size)
+                    }
+
+                imdb_params = \
+                    {
+                        'sublanguageid': languages,
+                        'imdbid': imdb_id
+                    }
+
+                tag_params = \
+                    {
+                        'sublanguageid': languages,
+                        'tag': file_base
+                    }
+
+                query_params = \
+                    {
+                        'sublanguageid': languages,
+                        'query': path.splitext(file_base)[0]
+                    }
+
+                request_params = [hash_params, imdb_params, tag_params, query_params]
+                request_count = 0
+                first_try = True
+
+                # Try each param dictionary until a subtitle match has been found or we have no more options
+                while (first_try or len(self.query_result['data']) == 0) and request_count < 4:
+                    first_try = False
+                    self.query_result = self.xml_rpc.SearchSubtitles(self.user_token,
+                                                                     [request_params[request_count]],
+                                                                     {'limit': limit})
+                    request_count += 1
+
+                if len(self.query_result['data']) > 0:
+                    print("\nThe following subtitles are available for '{0}':".format(file_base))
+                    for result in self._extract_data('data'):
+                        print('* ' + result['SubFileName'])
+                    return self._extract_data('data')
+
+                print('Sorry - could not find any matching subtitles')
+                return None
+
+            # except:
+            #     return
