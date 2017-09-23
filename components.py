@@ -1,10 +1,9 @@
 from threading import Timer, Lock
-import os
 import struct
 
 
 class TimedEvent(object):
-    # Based on code from: https://stackoverflow.com/questions/2398661/schedule-a-repeating-event-in-python-3
+    # Based on source from: https://stackoverflow.com/questions/2398661/schedule-a-repeating-event-in-python-3
     """
     A periodic task running in threading.Timers
     """
@@ -44,37 +43,33 @@ class TimedEvent(object):
             self.start()
 
 
-def hash_file(name):
-    # Source: http://trac.opensubtitles.org/projects<script%20type=/opensubtitles/wiki/HashSourceCodes
+def hash_file(file, file_size):
+    # Based on source: http://trac.opensubtitles.org/projects<script%20type=/opensubtitles/wiki/HashSourceCodes
     try:
 
-        longlongformat = '<q'  # little-endian long long
-        bytesize = struct.calcsize(longlongformat)
+        long_long_format = '<q'  # little-endian long long
+        byte_size = struct.calcsize(long_long_format)
+        file_hash = file_size
 
-        f = open(name, "rb")
-
-        filesize = os.path.getsize(name)
-        hash = filesize
-
-        if filesize < 65536 * 2:
+        if file_size < 65536 * 2:
             return "SizeError"
 
-        for x in range(65536 / bytesize):
-            buffer = f.read(bytesize)
-            (l_value,) = struct.unpack(longlongformat, buffer)
-            hash += l_value
-            hash = hash & 0xFFFFFFFFFFFFFFFF  # to remain as 64bit number
+        for x in range(65536 // byte_size):
+            buffer = file.read(byte_size)
+            (l_value,) = struct.unpack(long_long_format, buffer)
+            file_hash += l_value
+            file_hash = file_hash & 0xFFFFFFFFFFFFFFFF  # to remain as 64bit number
 
-        f.seek(max(0, filesize - 65536), 0)
-        for x in range(65536 / bytesize):
-            buffer = f.read(bytesize)
-            (l_value,) = struct.unpack(longlongformat, buffer)
-            hash += l_value
-            hash = hash & 0xFFFFFFFFFFFFFFFF
+        file.seek(max(0, file_size - 65536), 0)
+        for x in range(65536 // byte_size):
+            buffer = file.read(byte_size)
+            (l_value,) = struct.unpack(long_long_format, buffer)
+            file_hash += l_value
+            file_hash = file_hash & 0xFFFFFFFFFFFFFFFF
 
-        f.close()
-        returnedhash = "%016x" % hash
-        return returnedhash
+        file.close()
+        returned_hash = "%016x" % file_hash
+        return returned_hash
 
     except IOError:
         return "IOError"
