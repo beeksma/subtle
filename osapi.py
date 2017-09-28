@@ -55,7 +55,7 @@ class OSHandler(object):
                 self.query_result = None
                 self.logged_in = True
             except TypeError:
-                    print("Error: Login unsuccessful. Please check your login information and try again.")
+                print("Error: Login unsuccessful. Please check your login information and try again.")
             except TimeoutError:  # Throw exception if we can't connect to OpenSubtitles
                 print("Error: Could not connect to OpenSubtitles.org")
         else:
@@ -104,49 +104,51 @@ class OSHandler(object):
 
                 # Send query and return result
                 self.query_result = self.xml_rpc.CheckMovieHash(self.user_token, [video_info['hash']])
-                video_info['matches'] = self._extract_data('data')\
+                video_info['match'] = self._extract_data('data')[video_info['hash']] \
                     if len(self._extract_data('data')[video_info['hash']]) > 0 else None
                 return video_info
 
-        except TimeoutError:  # Throw exception if we can't connect to OpenSubtitles
+        except TimeoutError:  # Catch exception if we can't connect to OpenSubtitles
             print("Error: Could not connect to OpenSubtitles.org")
-            return
+            return None
 
-    def search_subtitles(self, video_filename, imdb_id=None, limit=500):
-        if self.logged_in and video_filename is not None and limit <= 500:
+        except OSError as e:
+            if e.args[0] == 2: # Catch exception if video_filename does not exist
+                print("Error: Could not find the specified file")
+                return None
+            elif e.args[0] == 22: # Catch exception if video_filename is not a valid filename
+                print("Error: Invalid argument specified - please use the full file path")
+                return None
+
+    def search_subtitles(self, video_info, limit=500):
+        if self.logged_in and video_info is not None and limit <= 500:
             try:
-                # Get video info
-                video = open(video_filename, "rb")
-                file_base = path.basename(video_filename)
-                file_size = path.getsize(video_filename)
-                video_hash = hash_file(video, file_size)
-                video.close()
-
                 # Set params
                 languages = ','.join(self.language)
                 hash_params = \
                     {
                         'sublanguageid': languages,
-                        'moviehash': video_hash,
-                        'moviebytesize': str(file_size)
+                        'moviehash': video_info['hash'],
+                        'moviebytesize': str(video_info['size'])
                     }
 
+                imdb_match = video_info['match']['MovieImdbID'] if video_info['match'] is not None else None
                 imdb_params = \
                     {
                         'sublanguageid': languages,
-                        'imdbid': imdb_id
+                        'imdbid': imdb_match
                     }
 
                 tag_params = \
                     {
                         'sublanguageid': languages,
-                        'tag': file_base
+                        'tag': video_info['base']
                     }
 
                 query_params = \
                     {
                         'sublanguageid': languages,
-                        'query': path.splitext(file_base)[0]
+                        'query': path.splitext(video_info['base'])[0]
                     }
 
                 request_params = [hash_params, imdb_params, tag_params, query_params]
@@ -163,7 +165,8 @@ class OSHandler(object):
 
                 if len(self.query_result['data']) > 0:
                     for lang in self.language:
-                        print("\nThe following '{0}' subtitles are available for '{1}':".format(lang, file_base))
+                        print("\nThe following '{0}' subtitles are available for '{1}':"
+                              .format(lang, video_info['base']))
                         for result in self._extract_data('data'):
                             if result['SubLanguageID'] == lang:
                                 print('* ' + result['SubFileName'])
