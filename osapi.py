@@ -93,7 +93,7 @@ class OSHandler(object):
 
     def search_subtitles(self, video_filename, imdb_id=None, limit=500):
         if self.logged_in and video_filename is not None and limit <= 500:
-            # try:
+            try:
                 # Get video info
                 video = open(video_filename, "rb")
                 file_base = path.basename(video_filename)
@@ -141,13 +141,16 @@ class OSHandler(object):
                     request_count += 1
 
                 if len(self.query_result['data']) > 0:
-                    print("\nThe following subtitles are available for '{0}':".format(file_base))
-                    for result in self._extract_data('data'):
-                        print('* ' + result['SubFileName'])
+                    for lang in self.language:
+                        print("\nThe following '{0}' subtitles are available for '{1}':".format(lang, file_base))
+                        for result in self._extract_data('data'):
+                            if result['SubLanguageID'] == lang:
+                                print('* ' + result['SubFileName'])
                     return self._extract_data('data')
 
                 print('Sorry - could not find any matching subtitles')
                 return None
 
-            # except:
-            #     return
+            except TimeoutError:
+                print('Error: Could not connect to OpenSubtitles.org')
+                return None
