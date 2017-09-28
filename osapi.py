@@ -91,6 +91,27 @@ class OSHandler(object):
                 print("Error: Could not connect to OpenSubtitles.org")
                 return
 
+    def get_video_info(self, video_filename):
+        try:
+            if self.logged_in and video_filename is not None:
+                # Get video info
+                video_info = dict()
+                video = open(video_filename, "rb")
+                video_info['base'] = path.basename(video_filename)
+                video_info['size'] = path.getsize(video_filename)
+                video_info['hash'] = hash_file(video, video_info['size'])
+                video.close()
+
+                # Send query and return result
+                self.query_result = self.xml_rpc.CheckMovieHash(self.user_token, [video_info['hash']])
+                video_info['matches'] = self._extract_data('data')\
+                    if len(self._extract_data('data')[video_info['hash']]) > 0 else None
+                return video_info
+
+        except TimeoutError:  # Throw exception if we can't connect to OpenSubtitles
+            print("Error: Could not connect to OpenSubtitles.org")
+            return
+
     def search_subtitles(self, video_filename, imdb_id=None, limit=500):
         if self.logged_in and video_filename is not None and limit <= 500:
             try:
