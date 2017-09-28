@@ -115,10 +115,11 @@ class OSHandler(object):
         except OSError as e:
             if e.args[0] == 2: # Catch exception if video_filename does not exist
                 print("Error: Could not find the specified file")
-                return None
             elif e.args[0] == 22: # Catch exception if video_filename is not a valid filename
                 print("Error: Invalid argument specified - please use the full file path")
-                return None
+            else:
+                print("Error: Could not open the specified file")
+            return None
 
     def search_subtitles(self, video_info, limit=500):
         if self.logged_in and video_info is not None and limit <= 500:
