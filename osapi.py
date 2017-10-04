@@ -205,3 +205,6 @@ class OSHandler(object):
 
             except TimeoutError:
                 print('Error: Could not connect to OpenSubtitles.org')
+
+            except UnicodeDecodeError:
+                print('Error: Could not decode downloaded subtitle to UTF-8 character encoding')
