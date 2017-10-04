@@ -1,7 +1,7 @@
 from xmlrpc.client import ServerProxy, ProtocolError
 from socket import gaierror
 from components import TimedEvent, hash_file
-from os import path
+import os
 import hashlib
 import sys
 
@@ -150,7 +150,7 @@ class OSHandler(object):
                 query_params = \
                     {
                         'sublanguageid': languages,
-                        'query': path.splitext(video_info['base'])[0]
+                        'query': os.path.splitext(video_info['base'])[0]
                     }
 
                 request_params = [hash_params, imdb_params, tag_params, query_params]
