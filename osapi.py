@@ -169,9 +169,9 @@ class OSHandler(object):
                     for lang in self.language:
                         print("\nThe following '{0}' subtitles are available for '{1}':"
                               .format(lang, video_info['base']))
-                        for result in self._extract_data('data'):
-                            if result['SubLanguageID'] == lang:
-                                print('* ' + result['SubFileName'])
+                        for sub in self._extract_data('data'):
+                            if sub['SubLanguageID'] == lang:
+                                print('{0}. '.format((self._extract_data('data')).index(sub) + 1) + sub['SubFileName'])
                     return self._extract_data('data')
 
                 print('Sorry - could not find any matching subtitles')
