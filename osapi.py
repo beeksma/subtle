@@ -149,18 +149,24 @@ class OSHandler(object):
                         'tag': video_info['base']
                     }
 
-                query_params = \
+                file_params = \
                     {
                         'sublanguageid': languages,
                         'query': os.path.splitext(video_info['base'])[0]
                     }
 
-                request_params = [hash_params, imdb_params, tag_params, query_params]
+                folder_params = \
+                    {
+                        'sublanguageid': languages,
+                        'query': os.path.basename(video_info['dir'])
+                    }
+
+                request_params = [hash_params, imdb_params, tag_params, file_params, folder_params]
                 request_count = 0
                 first_try = True
 
                 # Try each param dictionary until a subtitle match has been found or we have no more options
-                while (first_try or len(self.query_result['data']) == 0) and request_count < 4:
+                while (first_try or len(self.query_result['data']) == 0) and request_count < 5:
                     first_try = False
                     self.query_result = self.xml_rpc.SearchSubtitles(self.user_token,
                                                                      [request_params[request_count]],
