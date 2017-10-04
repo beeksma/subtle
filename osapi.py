@@ -92,34 +92,35 @@ class OSHandler(object):
                 return
 
     def get_video_info(self, video_filename):
-        try:
-            if self.logged_in and video_filename is not None:
-                # Get video info
-                video_info = dict()
-                video = open(video_filename, "rb")
-                video_info['base'] = path.basename(video_filename)
-                video_info['size'] = path.getsize(video_filename)
-                video_info['hash'] = hash_file(video, video_info['size'])
-                video.close()
+        if self.logged_in and video_filename is not None:
+            try:
+                    # Get video info
+                    video_info = dict()
+                    video = open(video_filename, "rb")
+                    video_info['dir'] = os.path.dirname(video_filename)
+                    video_info['base'] = os.path.basename(video_filename)
+                    video_info['size'] = os.path.getsize(video_filename)
+                    video_info['hash'] = hash_file(video, video_info['size'])
+                    video.close()
 
-                # Send query and return result
-                self.query_result = self.xml_rpc.CheckMovieHash(self.user_token, [video_info['hash']])
-                video_info['match'] = self._extract_data('data')[video_info['hash']] \
-                    if len(self._extract_data('data')[video_info['hash']]) > 0 else None
-                return video_info
+                    # Send query and return result
+                    self.query_result = self.xml_rpc.CheckMovieHash(self.user_token, [video_info['hash']])
+                    video_info['match'] = self._extract_data('data')[video_info['hash']] \
+                        if len(self._extract_data('data')[video_info['hash']]) > 0 else None
+                    return video_info
 
-        except TimeoutError:  # Catch exception if we can't connect to OpenSubtitles
-            print("Error: Could not connect to OpenSubtitles.org")
-            return None
+            except TimeoutError:  # Catch exception if we can't connect to OpenSubtitles
+                print("Error: Could not connect to OpenSubtitles.org")
+                return None
 
-        except OSError as e:
-            if e.args[0] == 2: # Catch exception if video_filename does not exist
-                print("Error: Could not find the specified file")
-            elif e.args[0] == 22: # Catch exception if video_filename is not a valid filename
-                print("Error: Invalid argument specified - please use the full file path")
-            else:
-                print("Error: Could not open the specified file")
-            return None
+            except OSError as e:
+                if e.args[0] == 2:  # Catch exception if video_filename does not exist
+                    print("Error: Could not find the specified file")
+                elif e.args[0] == 22:  # Catch exception if video_filename is not a valid filename
+                    print("Error: Invalid argument specified - please use the full file path")
+                else:
+                    print("Error: Could not open the specified file")
+                return None
 
     def search_subtitles(self, video_info, limit=500):
         if self.logged_in and video_info is not None and limit <= 500:
