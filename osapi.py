@@ -4,6 +4,8 @@ from components import TimedEvent, hash_file
 import os
 import hashlib
 import sys
+import base64
+import zlib
 
 
 class OSHandler(object):
@@ -180,3 +182,20 @@ class OSHandler(object):
             except TimeoutError:
                 print('Error: Could not connect to OpenSubtitles.org')
                 return None
+
+    def download_subtitle(self, video_info, results, index):
+        if self.logged_in and video_info is not None and results is not None and 0 <= index < len(results):
+            try:
+                sub_id = results[index]['IDSubtitleFile']
+                self.query_result = self.xml_rpc.DownloadSubtitles(self.user_token, [sub_id])
+                sub = zlib.decompress(base64.b64decode(self._extract_data('data')[0]['data']), 16 +
+                                      zlib.MAX_WBITS).decode('utf-8')
+                sub_filename = "{path}.{lang}.{ext}".format(
+                    path=os.path.join(video_info['dir'], video_info['base'][:-4]),
+                    lang=results[index]['ISO639'], ext='srt')
+                sub_file = open(sub_filename, 'w', encoding='utf-8', newline='')
+                sub_file.write(sub)
+                sub_file.close()
+
+            except TimeoutError:
+                print('Error: Could not connect to OpenSubtitles.org')
