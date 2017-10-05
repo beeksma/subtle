@@ -11,8 +11,9 @@ import zlib
 class OSHandler(object):
     """"Provides the connection to and communication with the OpenSubtitles server using XML RPC"""
 
+    version = '1'
     server_url = 'https://api.opensubtitles.org:443/xml-rpc'
-    user_agent = 'OSTestUserAgentTemp'
+    user_agent = 'Subtle' + version  # Please do not change this value, nor use it in any other API
 
     def __init__(self):
         print("\nWelcome to Subtle! Attempting to connect to OpenSubtitles...")
