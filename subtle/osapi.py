@@ -5,7 +5,7 @@ import sys
 import zlib
 from socket import gaierror
 from xmlrpc.client import ServerProxy, ProtocolError
-from subtle.components import TimedEvent, hash_file
+from subtle.components import TimedEvent
 
 
 class OSHandler(object):
@@ -94,50 +94,41 @@ class OSHandler(object):
                 print("Error: Could not connect to OpenSubtitles.org")
                 return
 
-    def get_video_info(self, video_filename):
-        if self.logged_in and video_filename is not None:
+    def get_video_info(self, video):
+        if self.logged_in and video is not None:
             try:
-                    # Get video info
-                    video_info = dict()
-                    video = open(video_filename, "rb")
-                    video_info['dir'] = os.path.dirname(video_filename)
-                    video_info['base'] = os.path.basename(video_filename)
-                    video_info['size'] = os.path.getsize(video_filename)
-                    video_info['hash'] = hash_file(video, video_info['size'])
-                    video.close()
-
                     # Send query and return result
-                    self.query_result = self.xml_rpc.CheckMovieHash(self.user_token, [video_info['hash']])
-                    video_info['match'] = self._extract_data('data')[video_info['hash']] \
-                        if len(self._extract_data('data')[video_info['hash']]) > 0 else None
-                    return video_info
+                    self.query_result = self.xml_rpc.CheckMovieHash(self.user_token, [video.file_hash])
+                    if len(self._extract_data('data')[video.file_hash]) > 0:
+                        data = self._extract_data('data')[video.file_hash]
+                        video.imdb_id = data['MovieImdbID']
+                        video.title = data['MovieName']
+                        video.year = data['MovieYear']
+                        return video
+                    else:
+                        raise ValueError("Sorry, couldn't find any matches")
 
             except TimeoutError:  # Catch exception if we can't connect to OpenSubtitles
                 print("Error: Could not connect to OpenSubtitles.org")
                 return None
 
-            except OSError as e:
-                if e.args[0] == 2:  # Catch exception if video_filename does not exist
-                    print("Error: Could not find the specified file")
-                elif e.args[0] == 22:  # Catch exception if video_filename is not a valid filename
-                    print("Error: Invalid argument specified - please use the full file path")
-                else:
-                    print("Error: Could not open the specified file")
+            except TypeError:
+                print("Error: Are you sure you used a Video instance as a parameter?")
                 return None
 
-    def search_subtitles(self, video_info, limit=500):
-        if self.logged_in and video_info is not None and limit <= 500:
+    def search_subtitles(self, video, limit=500):
+        if self.logged_in and video is not None and limit <= 500:
             try:
                 # Set params
                 languages = ','.join(self.language)
                 hash_params = \
                     {
                         'sublanguageid': languages,
-                        'moviehash': video_info['hash'],
-                        'moviebytesize': str(video_info['size'])
+                        'moviehash': video.file_hash,
+                        'moviebytesize': str(video.file_size)
                     }
 
-                imdb_match = video_info['match']['MovieImdbID'] if video_info['match'] is not None else None
+                imdb_match = video.imdb_id if video.imdb_id is not 0 else None
                 imdb_params = \
                     {
                         'sublanguageid': languages,
@@ -147,19 +138,19 @@ class OSHandler(object):
                 tag_params = \
                     {
                         'sublanguageid': languages,
-                        'tag': video_info['base']
+                        'tag': video.file_name
                     }
 
                 file_params = \
                     {
                         'sublanguageid': languages,
-                        'query': os.path.splitext(video_info['base'])[0]
+                        'query': os.path.splitext(video.file_name)[0]
                     }
 
                 folder_params = \
                     {
                         'sublanguageid': languages,
-                        'query': os.path.basename(video_info['dir'])
+                        'query': os.path.basename(video.directory)
                     }
 
                 request_params = [hash_params, imdb_params, tag_params, file_params, folder_params]
@@ -177,7 +168,7 @@ class OSHandler(object):
                 if len(self.query_result['data']) > 0:
                     for lang in self.language:
                         print("\nThe following '{0}' subtitles are available for '{1}':"
-                              .format(lang, video_info['base']))
+                              .format(lang, video.file_name))
                         for sub in self._extract_data('data'):
                             if sub['SubLanguageID'] == lang:
                                 print('{0}. '.format((self._extract_data('data')).index(sub) + 1) + sub['SubFileName'])
@@ -190,15 +181,19 @@ class OSHandler(object):
                 print('Error: Could not connect to OpenSubtitles.org')
                 return None
 
-    def download_subtitle(self, video_info, results, index):
-        if self.logged_in and video_info is not None and results is not None and 0 <= index < len(results):
+            except TypeError:
+                print("Error: Are you sure you used a Video instance as a parameter?")
+                return None
+
+    def download_subtitle(self, video, results, index):
+        if self.logged_in and video is not None and results is not None and 0 <= index < len(results):
             try:
                 sub_id = results[index]['IDSubtitleFile']
                 self.query_result = self.xml_rpc.DownloadSubtitles(self.user_token, [sub_id])
                 sub = zlib.decompress(base64.b64decode(self._extract_data('data')[0]['data']), 16 +
                                       zlib.MAX_WBITS).decode('utf-8')
                 sub_filename = "{path}.{lang}.{ext}".format(
-                    path=os.path.join(video_info['dir'], video_info['base'][:-4]),
+                    path=os.path.join(video.directory, video.file_name[:-4]),
                     lang=results[index]['ISO639'], ext='srt')
                 sub_file = open(sub_filename, 'w', encoding='utf-8', newline='')
                 sub_file.write(sub)
@@ -209,3 +204,6 @@ class OSHandler(object):
 
             except UnicodeDecodeError:
                 print('Error: Could not decode downloaded subtitle to UTF-8 character encoding')
+
+            except TypeError:
+                print("Error: Are you sure you used a Video instance as a parameter?")
