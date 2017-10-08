@@ -1,8 +1,10 @@
 import os
+import uuid
 from subtle.components import hash_file
 
 
 class Video(object):
+    id = uuid.uuid1()
     title = ''
     full_path = ''
     file_size = 0
@@ -39,3 +41,23 @@ class Video(object):
                 print("Error: Invalid argument specified - please use the full file path")
             else:
                 print("Error: Could not open the specified file")
+
+
+class SubResult(object):
+    file_name = ''
+    video_id = None
+    is_HI = False
+    is_HD = False
+    rating = -1.0
+    download_id = ''
+    download_count = -1
+    fps = 0.0
+    language = ''
+    lang_id = ''
+    matched_by = ''
+
+    def __init__(self, video_id):
+        if type(video_id) is uuid.UUID:
+            self.video_id = video_id
+        else:
+            raise TypeError('Error: The provided video_id is not a valid unique identifier')

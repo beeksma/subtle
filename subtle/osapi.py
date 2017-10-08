@@ -6,6 +6,7 @@ import zlib
 from socket import gaierror
 from xmlrpc.client import ServerProxy, ProtocolError
 from subtle.components import TimedEvent
+from subtle.types import SubResult
 
 
 class OSHandler(object):
@@ -165,14 +166,32 @@ class OSHandler(object):
                                                                      {'limit': limit})
                     request_count += 1
 
+                # In case we find matching subtitles, return them as SubResult instances grouped by language
                 if len(self.query_result['data']) > 0:
+                    results = dict()
                     for lang in self.language:
                         print("\nThe following '{0}' subtitles are available for '{1}':"
                               .format(lang, video.file_name))
                         for sub in self._extract_data('data'):
                             if sub['SubLanguageID'] == lang:
-                                print('{0}. '.format((self._extract_data('data')).index(sub) + 1) + sub['SubFileName'])
-                    return self._extract_data('data')
+                                if lang not in results:
+                                    results[lang] = []
+                                s = SubResult(video.id)
+                                s.file_name = sub['SubFileName']
+                                s.download_id = sub['IDSubtitleFile']
+                                s.lang_id = sub['ISO639']
+                                s.language = sub['LanguageName']
+                                s.rating = float(sub['SubRating'])
+                                s.is_HD = bool(sub['SubHD'])
+                                s.is_HI = bool(sub['SubHearingImpaired'])
+                                s.download_count = int(sub['SubDownloadsCnt'])
+                                s.fps = float(sub['MovieFPS'])
+                                s.matched_by = sub['MatchedBy']
+                                results[lang].append(s)
+                                print('{0}. {1} - ID: {2} Download Count: {3}'
+                                      .format((self._extract_data('data')).index(sub) + 1,
+                                              s.file_name, s.download_id, s.download_count))
+                    return results
 
                 print('Sorry - could not find any matching subtitles')
                 return None
@@ -185,16 +204,16 @@ class OSHandler(object):
                 print("Error: Are you sure you used a Video instance as a parameter?")
                 return None
 
-    def download_subtitle(self, video, results, index):
-        if self.logged_in and video is not None and results is not None and 0 <= index < len(results):
+    def download_subtitle(self, video, sub_result):
+        if self.logged_in and sub_result is not None:
             try:
-                sub_id = results[index]['IDSubtitleFile']
+                sub_id = sub_result.download_id
                 self.query_result = self.xml_rpc.DownloadSubtitles(self.user_token, [sub_id])
                 sub = zlib.decompress(base64.b64decode(self._extract_data('data')[0]['data']), 16 +
                                       zlib.MAX_WBITS).decode('utf-8')
                 sub_filename = "{path}.{lang}.{ext}".format(
                     path=os.path.join(video.directory, video.file_name[:-4]),
-                    lang=results[index]['ISO639'], ext='srt')
+                    lang=sub_result.lang_id, ext='srt')
                 sub_file = open(sub_filename, 'w', encoding='utf-8', newline='')
                 sub_file.write(sub)
                 sub_file.close()
@@ -206,4 +225,4 @@ class OSHandler(object):
                 print('Error: Could not decode downloaded subtitle to UTF-8 character encoding')
 
             except TypeError:
-                print("Error: Are you sure you used a Video instance as a parameter?")
+                print("Error: Are you sure you are using Video and SubResult instances as parameters?")
