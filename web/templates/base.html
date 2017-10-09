@@ -1,0 +1,14 @@
+<html>
+  <head>
+    {% if title %}
+    <title>Subtle - {{ title }}</title>
+    {% else %}
+    <title>Subtle</title>
+    {% endif %}
+  </head>
+  <body>
+    <div>Subtle: <a href="/index">Home</a></div>
+    <hr>
+    {% block content %}{% endblock %}
+  </body>
+</html>

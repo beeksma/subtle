@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+    {% for lang in results %}
+      <h1>{{ results[lang][0]['language'] }} results for {{ video.title }}!</h1>
+      {% for sub in results[lang] %}
+      <div><p><b>{{ sub.file_name }}</b>
+        <br>Number of downloads: {{ sub.download_count }}
+        <br>Rating: {{ sub.rating }}
+        <br>FPS: {{ sub.fps }}
+      </p></div>
+      {% endfor %}
+    {% endfor %}
+{% endblock %}

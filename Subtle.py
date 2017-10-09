@@ -1,3 +1,10 @@
 #!flask/bin/python
 from web import app
-app.run(debug=True)
+from subtle import os_handler
+
+
+try:
+    app.run(debug=True)
+finally:
+    os_handler.logout()
+    os_handler = None
