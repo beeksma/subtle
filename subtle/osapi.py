@@ -120,6 +120,7 @@ class OSHandler(object):
     def search_subtitles(self, video, limit=500):
         if self.logged_in and video is not None and limit <= 500:
             try:
+                print("\nLooking for subtitles for '{0}'...".format(video.file_name))
                 # Set params
                 languages = ','.join(self.language)
                 hash_params = \
@@ -172,6 +173,7 @@ class OSHandler(object):
                     for lang in self.language:
                         print("\nThe following '{0}' subtitles are available for '{1}':"
                               .format(lang, video.file_name))
+                        print("=" * 10)
                         for sub in self._extract_data('data'):
                             if sub['SubLanguageID'] == lang:
                                 if lang not in results:
@@ -188,9 +190,10 @@ class OSHandler(object):
                                 s.fps = float(sub['MovieFPS'])
                                 s.matched_by = sub['MatchedBy']
                                 results[lang].append(s)
-                                print('{0}. {1} - ID: {2} Download Count: {3}'
+                                print('{0:0>2}. {1} [[ ID: {2} - Download Count: {3} ]]'
                                       .format((self._extract_data('data')).index(sub) + 1,
                                               s.file_name, s.download_id, s.download_count))
+                        print('')
                     return results
 
                 print('Sorry - could not find any matching subtitles')
