@@ -61,3 +61,6 @@ class SubResult(object):
             self.video_id = video_id
         else:
             raise TypeError('Error: The provided video_id is not a valid unique identifier')
+
+    def __str__(self):
+        return self.file_name
