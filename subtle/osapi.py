@@ -193,6 +193,7 @@ class OSHandler(object):
                                 print('{0:0>2}. {1} [[ ID: {2} - Download Count: {3} ]]'
                                       .format((self._extract_data('data')).index(sub) + 1,
                                               s.file_name, s.download_id, s.download_count))
+                        results[lang].sort(key=lambda x: x.download_count, reverse=True)
                         print('')
                     return results
 

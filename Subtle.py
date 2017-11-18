@@ -7,4 +7,3 @@ try:
     app.run(debug=True)
 finally:
     os_handler.logout()
-    os_handler = None

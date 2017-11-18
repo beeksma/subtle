@@ -19,7 +19,10 @@ def index():
 def get_result(sort_by="download_count", desc=True):
     v = Video(Debugger.video)
     os_handler.get_video_info(v)
+
     results = os_handler.search_subtitles(v)
+    for lang in results:
+        results[lang].sort(key=lambda x: getattr(x, sort_by), reverse=desc)
 
     return render_template("results.html",
                            title='Results',
