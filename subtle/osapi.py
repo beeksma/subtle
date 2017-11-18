@@ -180,7 +180,7 @@ class OSHandler(object):
                                     results[lang] = []
                                 s = SubResult(video.id)
                                 s.file_name = sub['SubFileName']
-                                s.download_id = sub['IDSubtitleFile']
+                                s.download_id = int(sub['IDSubtitleFile'])
                                 s.lang_id = sub['ISO639']
                                 s.language = sub['LanguageName']
                                 s.rating = float(sub['SubRating'])
