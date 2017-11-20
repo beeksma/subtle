@@ -1,4 +1,4 @@
-from flask import render_template, url_for, redirect
+from flask import render_template, url_for, redirect, request
 from web import app
 from subtle.types import Video
 from subtle import os_handler
@@ -7,6 +7,7 @@ from web.types import SubtitleQuery
 
 
 current_query = None
+
 
 @app.route('/home')
 @app.route('/')
@@ -19,25 +20,32 @@ def home():
 
 
 @app.route('/results')
-def get_result(sort_by="download_count", desc=True):
+def get_result():
+    sort_by = request.args.get('sort_by', default="download_count", type=str)
+    desc = True if request.args.get('desc', default="True", type=str) == "True" else False
     global current_query
-    current_query = SubtitleQuery(Video(Debugger.video))
-    os_handler.get_video_info(current_query.Video)
 
-    current_query.Results = os_handler.search_subtitles(current_query.Video)
+    if current_query is None:
+        current_query = SubtitleQuery(Video(Debugger.video))
+        os_handler.get_video_info(current_query.Video)
+        current_query.Results = os_handler.search_subtitles(current_query.Video)
+
     for lang in current_query.Results:
         current_query.Results[lang].sort(key=lambda x: getattr(x, sort_by), reverse=desc)
 
     return render_template("results.html",
                            title='Results',
                            video=current_query.Video,
+                           sort_by=sort_by,
+                           is_desc=desc,
+                           order="Ascending" if not desc else "Descending",
                            results=current_query.Results)
 
 
-@app.route('/download/<lang>/<int:download_id>')
+@app.route('/download/<lang>/<int:download_id>', methods=['POST'])
 def download_subtitle(lang, download_id):
     global current_query
     if current_query is not None:
         sub = next(s for s in current_query.Results[lang] if s.download_id == download_id)
         os_handler.download_subtitle(current_query.Video, sub)
-    return redirect(url_for('home'))
+    return redirect(url_for('get_result'))
