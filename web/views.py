@@ -1,4 +1,4 @@
-from flask import render_template, url_for, redirect, request
+from flask import render_template, url_for, redirect, request, flash
 from web import app
 from subtle.types import Video
 from subtle import os_handler
@@ -48,4 +48,5 @@ def download_subtitle(lang, download_id):
     if current_query is not None:
         sub = next(s for s in current_query.Results[lang] if s.download_id == download_id)
         os_handler.download_subtitle(current_query.Video, sub)
+        flash(str.format("Downloading {s.file_name}...", s=sub))
     return redirect(url_for('get_result'))

@@ -7,6 +7,19 @@
     {% endif %}
   </head>
   <body>
+    <div>
+        {% block popups %}
+            {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                    <ul class=flashes>
+                        {% for message in messages %}
+                            <li>{{ message }}</li>
+                        {% endfor %}
+                    </ul>
+                {% endif %}
+            {% endwith %}
+        {% endblock %}
+    </div>
     <div>Subtle: <a href="/">Home</a>   <a href="/results">Results</a></div>
     <hr>
     {% block content %}{% endblock %}
