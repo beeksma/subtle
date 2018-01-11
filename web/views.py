@@ -4,7 +4,8 @@ from subtle.types import Video
 from subtle import os_handler
 from debug import Debugger
 from web.types import SubtitleQuery
-
+from web import navigator
+import os
 
 current_query = None
 
@@ -40,6 +41,20 @@ def get_result():
                            is_desc=desc,
                            order="Ascending" if not desc else "Descending",
                            results=current_query.Results)
+
+
+@app.route('/browse')
+def select_video():
+    path = request.args.get('dir', default=navigator.path, type=str)
+    if path in 'parent':
+        path = navigator.parent
+    dirs = os.listdir(os.path.join(navigator.path, path))
+
+    return render_template("browse.html",
+                           title='Select a video',
+                           directories=dirs,
+                           path=navigator.path,
+                           not_root=(path != navigator.root))
 
 
 @app.route('/download/<lang>/<int:download_id>', methods=['POST'])

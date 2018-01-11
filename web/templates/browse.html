@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Please select a mkv video file:</h1>
+        <table>
+            <tr>
+                <th><p align="left">Name</p></th>
+                <th><p align="left">Type</p></th>
+            </tr>
+            {% if not_root %}
+            <tr>
+                <td width="70%" height="5"><small><a href="/browse?dir=parent">..</a></small></td>
+                <td><small>Parent directory</small></td>
+            </tr>
+            {% endif %}
+            {% for dirs in directories %}
+            <tr>
+                <td width="70%" height="5"><small><a href="/browse?dir={{ dirs }}">{{ dirs }}</a></small></td>
+                <td><small>Directory</small></td>
+            </tr>
+            {% endfor %}
+        </table>
+{% endblock %}
