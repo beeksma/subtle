@@ -45,14 +45,19 @@ def get_result():
 
 @app.route('/browse')
 def select_video():
-    path = request.args.get('dir', default=navigator.path, type=str)
+    path = request.args.get('dir', default=navigator.root, type=str)
     if path in 'parent':
         path = navigator.parent
-    dirs = os.listdir(os.path.join(navigator.path, path))
+    navigator.path = os.path.join(navigator.path, path)
+    dirs = [d for d in os.listdir(navigator.path) if os.path.isdir(os.path.join(navigator.path, d))]
+    supported_extensions = ('.mkv', '.avi', '.mp4')
+    files = [f for f in os.listdir(navigator.path)
+             if os.path.isfile(os.path.join(navigator.path, f)) and f.endswith(supported_extensions)]
 
     return render_template("browse.html",
                            title='Select a video',
                            directories=dirs,
+                           files=files,
                            path=navigator.path,
                            not_root=(path != navigator.root))
 

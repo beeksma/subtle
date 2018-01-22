@@ -12,10 +12,16 @@
                 <td><small>Parent directory</small></td>
             </tr>
             {% endif %}
-            {% for dirs in directories %}
+            {% for dir in directories %}
             <tr>
-                <td width="70%" height="5"><small><a href="/browse?dir={{ dirs }}">{{ dirs }}</a></small></td>
+                <td width="70%" height="5"><small><a href="/browse?dir={{ dir }}">{{ dir }}</a></small></td>
                 <td><small>Directory</small></td>
+            </tr>
+            {% endfor %}
+            {% for file in files %}
+            <tr>
+                <td width="70%" height="5"><small><a href="/select?file={{ file }}">{{ file }}</a></small></td>
+                <td><small>Video file</small></td>
             </tr>
             {% endfor %}
         </table>
