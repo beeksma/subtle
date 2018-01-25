@@ -2,13 +2,13 @@ from flask import render_template, url_for, redirect, request, flash
 from web import app
 from subtle.types import Video
 from subtle import os_handler
-from debug import Debugger
 from web.types import SubtitleQuery
 from web import navigator
 import os
 
 current_query = None
 current_video_path = None
+
 
 @app.route('/home')
 @app.route('/')
@@ -54,10 +54,10 @@ def browse():
             path = navigator.parent
         navigator.path = os.path.join(navigator.path, path)
         dirs = sorted([d for d in os.listdir(navigator.path)
-                if os.path.isdir(os.path.join(navigator.path, d)) and not d.startswith('.')])
+                       if os.path.isdir(os.path.join(navigator.path, d)) and not d.startswith('.')])
         supported_extensions = ('.mkv', '.avi', '.mp4')
         files = sorted([f for f in os.listdir(navigator.path)
-                 if os.path.isfile(os.path.join(navigator.path, f)) and f.endswith(supported_extensions)])
+                        if os.path.isfile(os.path.join(navigator.path, f)) and f.endswith(supported_extensions)])
 
         return render_template("browse.html",
                                title='Select a video',
@@ -65,7 +65,7 @@ def browse():
                                files=files,
                                path=navigator.path,
                                not_root=(path != navigator.root))
-    except:
+    except FileNotFoundError:
         flash("Something went wrong, please try again")
         return redirect(url_for('browse'))
 
