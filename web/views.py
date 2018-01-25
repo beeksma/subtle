@@ -70,6 +70,22 @@ def browse():
         return redirect(url_for('browse'))
 
 
+@app.route('/select')
+def select():
+    file_name = request.args.get('file', type=str)
+    global current_video_path
+    new_video_path = os.path.join(navigator.path, file_name)
+    if os.path.isfile(new_video_path):
+        current_video_path = new_video_path
+        global current_query
+        current_query = None
+        return redirect(url_for('get_result'))
+    else:
+        current_video_path = None
+        flash("Error: could not open the selected file. Please try again.")
+        return redirect(url_for('browse'))
+
+
 @app.route('/download/<lang>/<int:download_id>', methods=['POST'])
 def download_subtitle(lang, download_id):
     global current_query
