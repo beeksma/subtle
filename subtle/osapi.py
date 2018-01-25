@@ -107,7 +107,7 @@ class OSHandler(object):
                         video.year = data['MovieYear']
                         return video
                     else:
-                        raise ValueError("Sorry, couldn't find any matches")
+                        video.title = video.file_name
 
             except TimeoutError:  # Catch exception if we can't connect to OpenSubtitles
                 print("Error: Could not connect to OpenSubtitles.org")

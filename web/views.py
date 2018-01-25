@@ -8,7 +8,7 @@ from web import navigator
 import os
 
 current_query = None
-
+current_video_path = None
 
 @app.route('/home')
 @app.route('/')
@@ -26,8 +26,11 @@ def get_result():
     desc = True if request.args.get('desc', default="True", type=str) == "True" else False
     global current_query
 
-    if current_query is None:
-        current_query = SubtitleQuery(Video(Debugger.video))
+    if current_video_path is None:
+        flash("Please select a video file first!")
+        return redirect(url_for('browse'))
+    elif current_query is None:
+        current_query = SubtitleQuery(Video(current_video_path))
         os_handler.get_video_info(current_query.Video)
         current_query.Results = os_handler.search_subtitles(current_query.Video)
 
@@ -44,22 +47,27 @@ def get_result():
 
 
 @app.route('/browse')
-def select_video():
-    path = request.args.get('dir', default=navigator.root, type=str)
-    if path in 'parent':
-        path = navigator.parent
-    navigator.path = os.path.join(navigator.path, path)
-    dirs = [d for d in os.listdir(navigator.path) if os.path.isdir(os.path.join(navigator.path, d))]
-    supported_extensions = ('.mkv', '.avi', '.mp4')
-    files = [f for f in os.listdir(navigator.path)
-             if os.path.isfile(os.path.join(navigator.path, f)) and f.endswith(supported_extensions)]
+def browse():
+    try:
+        path = request.args.get('dir', default=navigator.root, type=str)
+        if path in 'parent':
+            path = navigator.parent
+        navigator.path = os.path.join(navigator.path, path)
+        dirs = sorted([d for d in os.listdir(navigator.path)
+                if os.path.isdir(os.path.join(navigator.path, d)) and not d.startswith('.')])
+        supported_extensions = ('.mkv', '.avi', '.mp4')
+        files = sorted([f for f in os.listdir(navigator.path)
+                 if os.path.isfile(os.path.join(navigator.path, f)) and f.endswith(supported_extensions)])
 
-    return render_template("browse.html",
-                           title='Select a video',
-                           directories=dirs,
-                           files=files,
-                           path=navigator.path,
-                           not_root=(path != navigator.root))
+        return render_template("browse.html",
+                               title='Select a video',
+                               directories=dirs,
+                               files=files,
+                               path=navigator.path,
+                               not_root=(path != navigator.root))
+    except:
+        flash("Something went wrong, please try again")
+        return redirect(url_for('browse'))
 
 
 @app.route('/download/<lang>/<int:download_id>', methods=['POST'])
