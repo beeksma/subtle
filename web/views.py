@@ -17,7 +17,8 @@ def home():
 
     return render_template("index.html",
                            title='Welcome to Subtle',
-                           greeting=greeting)
+                           greeting=greeting,
+                           no_results=current_query is None)
 
 
 @app.route('/results')
@@ -43,7 +44,8 @@ def get_result():
                            sort_by=sort_by,
                            is_desc=desc,
                            order="Ascending" if not desc else "Descending",
-                           results=current_query.Results)
+                           results=current_query.Results,
+                           no_results=current_query is None)
 
 
 @app.route('/browse')
@@ -64,6 +66,7 @@ def browse():
                                directories=dirs,
                                files=files,
                                path=navigator.path,
+                               no_results=current_query is None,
                                not_root=(path != navigator.root))
     except FileNotFoundError:
         flash("Something went wrong, please try again")
