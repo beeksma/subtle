@@ -37,7 +37,7 @@
 
         <!-- Flash messages -->
         {% block popups %}
-            {% with messages = get_flashed_messages() %}
+            {% with messages = get_flashed_messages(category_filter=["error"]) %}
                 {% if messages %}
                     <div class="popups">
                         <div class="alert alert-warning alert-dismissible fade show" role="alert">
@@ -50,12 +50,45 @@
                         </div>
                     </div>
                 {% endif %}
-          {% endwith %}
+            {% endwith %}
+            {% with messages = get_flashed_messages(category_filter=["info"]) %}
+                {% if messages %}
+                    <div class="popups">
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endwith %}
+            {% with messages = get_flashed_messages(category_filter=["success"]) %}
+                {% if messages %}
+                    <div class="popups">
+                        <div class="alert alert-success fade in" role="alert">
+                            {% for message in messages %}
+                                {{ message }}
+                            {% endfor %}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endwith %}
       {% endblock %}
 
       <main role="main" class="container">
           {% block content %}{% endblock %}
       </main>
+      <footer class="footer">
+      <div class="container" align="center">
+        <span class="text-muted">Subtle by <strong>Beeksma</strong></span>
+      </div>
+    </footer>
       <script src="/static/js/jquery.js"></script>
       <script src="/static/js/subtle.js"></script>
       <script src="/static/js/bootstrap.bundle.js"></script>

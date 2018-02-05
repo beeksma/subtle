@@ -28,7 +28,7 @@ def get_result():
     global current_query
 
     if current_video_path is None:
-        flash("Please select a video file first!")
+        flash("Please select a video file first!", 'info')
         return redirect(url_for('browse'))
     elif current_query is None:
         current_query = SubtitleQuery(Video(current_video_path))
@@ -69,7 +69,7 @@ def browse():
                                no_results=current_query is None,
                                not_root=(path != navigator.root))
     except FileNotFoundError:
-        flash("Something went wrong, please try again")
+        flash("Something went wrong, please try again", 'error')
         return redirect(url_for('browse'))
 
 
@@ -85,7 +85,7 @@ def select():
         return redirect(url_for('get_result'))
     else:
         current_video_path = None
-        flash("Error: could not open the selected file. Please try again.")
+        flash("Error: could not open the selected file. Please try again.", 'error')
         return redirect(url_for('browse'))
 
 
@@ -95,5 +95,5 @@ def download_subtitle(lang, download_id):
     if current_query is not None:
         sub = next(s for s in current_query.Results[lang] if s.download_id == download_id)
         os_handler.download_subtitle(current_query.Video, sub)
-        flash(str.format("Downloading {s.file_name}...", s=sub))
+        flash(str.format("Downloading {s.file_name}...", s=sub), 'info')
     return redirect(url_for('get_result'))
