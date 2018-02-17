@@ -10,11 +10,13 @@ from subtle.types import SubResult
 
 
 class OSHandler(object):
-    """"Provides the connection to and communication with the OpenSubtitles server using XML RPC"""
+    """"Provides the connection to and communication with the
+    OpenSubtitles server using XML RPC"""
 
     version = '1'
     server_url = 'https://api.opensubtitles.org:443/xml-rpc'
-    user_agent = 'Subtle' + version  # Please do not change this value, nor use it in any other API
+    # Please do not change the user agent, nor use it in any other API
+    user_agent = 'Subtle' + version
 
     def __init__(self):
         print("\nWelcome to Subtle! Attempting to connect to OpenSubtitles...")
@@ -23,44 +25,56 @@ class OSHandler(object):
             self.language = []
             self.user_token = None
             self.__logged_in = False
-            self.keep_alive_timer = TimedEvent(900, self._no_operation, autostart=False)
+            self.keep_alive_timer = TimedEvent(
+                900, self._no_operation, autostart=False)
             self.query_result = None
             self.server_info = self.xml_rpc.ServerInfo()
-        except (gaierror, ProtocolError):  # Throw exception and exit if we can't connect to OpenSubtitles
+        except (gaierror, ProtocolError):
+            # Throw exception and exit if we can't connect to OpenSubtitles
             print("Error: Could not connect to OpenSubtitles.org")
             sys.exit(2)
 
     @property
     def logged_in(self):
-        # Calling the 'logged_in' property will reset the timer that keeps the connection alive
+        # Resets the timer that keeps the connection alive
         self.keep_alive_timer.reset()
         return self.__logged_in
 
     @logged_in.setter
     def logged_in(self, value):
-        # Setting the 'logged_in' property will start or stop the timer that keeps the connection alive
+        # Start or stops the timer that keeps the connection alive
         self.__logged_in = value
-        self.keep_alive_timer.start() if value else self.keep_alive_timer.stop()
+        self.keep_alive_timer.start() if \
+            value else self.keep_alive_timer.stop()
 
     def _extract_data(self, key):
-        return self.query_result.get(key) if self.query_result['status'].split()[0] == '200' else None
+        return self.query_result.get(key) if \
+            self.query_result['status'].split()[0] == '200' else None
 
     def login(self, username, password):
         if not self.logged_in:
             print("\nLogging in...")
             hashed_password = hashlib.md5(password.encode('utf-8')).hexdigest()
             try:
-                self.query_result = self.xml_rpc.LogIn(username, hashed_password, self.language, self.user_agent)
+                self.query_result = self.xml_rpc.LogIn(
+                                        username, hashed_password,
+                                        self.language, self.user_agent)
                 self.user_token = self._extract_data('token')
-                self.language = (self._extract_data('data')['UserPreferedLanguages']).split(",")
+                self.language = \
+                    (self._extract_data('data')['UserPreferedLanguages']) \
+                    .split(",")
 
-                print("""Login successful. Token set to "{t:s}", preferred language for subtitles set to '{lang:s}'."""
+                print("""Login successful. Token set to "{t:s}","""
+                      " preferred language for subtitles set to '{lang:s}'."
                       .format(t=self.user_token, lang=",".join(self.language)))
                 self.query_result = None
                 self.logged_in = True
             except TypeError:
-                print("Error: Login unsuccessful. Please check your login information and try again.")
-            except TimeoutError:  # Throw exception if we can't connect to OpenSubtitles
+                print(
+                    "Error: Login unsuccessful."
+                    " Please check your login information and try again.")
+            except TimeoutError:
+                # Throw exception if we can't connect to OpenSubtitles
                 print("Error: Could not connect to OpenSubtitles.org")
         else:
             print("Error: You're already logged in!")
@@ -76,11 +90,12 @@ class OSHandler(object):
                     print("Successfully logged out. Thanks for using Subtle!")
                 else:
                     print("Error: {}".format(self._extract_data('status')))
-            except TimeoutError:  # Throw exception if we can't connect to OpenSubtitles
+            except TimeoutError:
+                # Throw exception if we can't connect to OpenSubtitles
                 print("Error: Could not connect to OpenSubtitles.org")
                 return
         else:
-            print("Error: You can't be logged out as you're currently not logged in!")
+            print("Error: Can't log out as you're currently not logged in!")
 
     def _no_operation(self):
         if self.__logged_in:
@@ -88,10 +103,12 @@ class OSHandler(object):
                 self.query_result = self.xml_rpc.NoOperation(self.user_token)
                 if self._extract_data('status').split()[0] != '200':
                     self.logged_in = False
-                    print("Your session timed out, please use Login before doing anything else")
+                    print("Your session timed out, "
+                          "please use Login before doing anything else")
                 else:
                     print("Staying alive...")
-            except TimeoutError:  # Throw exception if we can't connect to OpenSubtitles
+            except TimeoutError:
+                # Throw exception if we can't connect to OpenSubtitles
                 print("Error: Could not connect to OpenSubtitles.org")
                 return
 
@@ -99,7 +116,8 @@ class OSHandler(object):
         if self.logged_in and video is not None:
             try:
                     # Send query and return result
-                    self.query_result = self.xml_rpc.CheckMovieHash(self.user_token, [video.file_hash])
+                    self.query_result = self.xml_rpc.CheckMovieHash(
+                        self.user_token, [video.file_hash])
                     if len(self._extract_data('data')[video.file_hash]) > 0:
                         data = self._extract_data('data')[video.file_hash]
                         video.imdb_id = data['MovieImdbID']
@@ -109,18 +127,20 @@ class OSHandler(object):
                     else:
                         video.title = video.file_name
 
-            except TimeoutError:  # Catch exception if we can't connect to OpenSubtitles
+            except TimeoutError:
+                # Catch exception if we can't connect to OpenSubtitles
                 print("Error: Could not connect to OpenSubtitles.org")
                 return None
 
             except TypeError:
-                print("Error: Are you sure you used a Video instance as a parameter?")
+                print("Error: Are you sure you're using a Video instance?")
                 return None
 
     def search_subtitles(self, video, limit=500):
         if self.logged_in and video is not None and limit <= 500:
             try:
-                print("\nLooking for subtitles for '{0}'...".format(video.file_name))
+                print("\nLooking for subtitles for '{0}'..."
+                      .format(video.file_name))
                 # Set params
                 languages = ','.join(self.language)
                 hash_params = \
@@ -155,24 +175,31 @@ class OSHandler(object):
                         'query': os.path.basename(video.directory)
                     }
 
-                request_params = [hash_params, imdb_params, tag_params, file_params, folder_params]
+                request_params = \
+                    [hash_params, imdb_params, tag_params,
+                     file_params, folder_params]
                 request_count = 0
                 first_try = True
 
-                # Try each param dictionary until a subtitle match has been found or we have no more options
-                while (first_try or len(self.query_result['data']) == 0) and request_count < 5:
+                # Try each param dictionary until we finda subtitle match
+                while (first_try or len(self.query_result['data']) == 0) \
+                        and request_count < 5:
                     first_try = False
-                    self.query_result = self.xml_rpc.SearchSubtitles(self.user_token,
-                                                                     [request_params[request_count]],
-                                                                     {'limit': limit})
+                    self.query_result = \
+                        self.xml_rpc.SearchSubtitles(
+                            self.user_token,
+                            [request_params[request_count]],
+                            {'limit': limit})
                     request_count += 1
 
-                # In case we find matching subtitles, return them as SubResult instances grouped by language
+                # Return matching subs as SubResults grouped by language
                 if len(self.query_result['data']) > 0:
                     results = dict()
                     for lang in self.language:
-                        print("\nThe following '{0}' subtitles are available for '{1}':"
-                              .format(lang, video.file_name))
+                        print(
+                            "\nThe following '{0}' subtitles are "
+                            "available for '{1}':"
+                            .format(lang, video.file_name))
                         print("=" * 10)
                         for sub in self._extract_data('data'):
                             if sub['SubLanguageID'] == lang:
@@ -190,10 +217,16 @@ class OSHandler(object):
                                 s.fps = float(sub['MovieFPS'])
                                 s.matched_by = sub['MatchedBy']
                                 results[lang].append(s)
-                                print('{0:0>2}. {1} [[ ID: {2} - Download Count: {3} ]]'
-                                      .format((self._extract_data('data')).index(sub) + 1,
-                                              s.file_name, s.download_id, s.download_count))
-                        results[lang].sort(key=lambda x: x.download_count, reverse=True)
+                                print(
+                                    '{0:0>2}. {1} '
+                                    '[[ ID: {2} - Download Count: {3} ]]'
+                                    .format(
+                                        (self._extract_data('data'))
+                                        .index(sub) + 1,
+                                        s.file_name, s.download_id,
+                                        s.download_count))
+                        results[lang].sort(
+                            key=lambda x: x.download_count, reverse=True)
                         print('')
                     return results
 
@@ -205,20 +238,25 @@ class OSHandler(object):
                 return None
 
             except TypeError:
-                print("Error: Are you sure you used a Video instance as a parameter?")
+                print(
+                    'Error: Are you sure you used a Video instance'
+                    ' as a parameter?')
                 return None
 
     def download_subtitle(self, video, sub_result):
         if self.logged_in and sub_result is not None:
             try:
                 sub_id = sub_result.download_id
-                self.query_result = self.xml_rpc.DownloadSubtitles(self.user_token, [sub_id])
-                sub = zlib.decompress(base64.b64decode(self._extract_data('data')[0]['data']), 16 +
-                                      zlib.MAX_WBITS).decode('utf-8')
+                self.query_result = self.xml_rpc.DownloadSubtitles(
+                    self.user_token, [sub_id])
+                sub = zlib.decompress(base64.b64decode(
+                    self._extract_data('data')[0]['data']), 16 +
+                    zlib.MAX_WBITS).decode('utf-8')
                 sub_filename = "{path}.{lang}.{ext}".format(
                     path=os.path.join(video.directory, video.file_name[:-4]),
                     lang=sub_result.lang_id, ext='srt')
-                sub_file = open(sub_filename, 'w', encoding='utf-8', newline='')
+                sub_file = open(
+                    sub_filename, 'w', encoding='utf-8', newline='')
                 sub_file.write(sub)
                 sub_file.close()
 
@@ -226,7 +264,11 @@ class OSHandler(object):
                 print('Error: Could not connect to OpenSubtitles.org')
 
             except UnicodeDecodeError:
-                print('Error: Could not decode downloaded subtitle to UTF-8 character encoding')
+                print(
+                    'Error: Could not decode downloaded subtitle to UTF-8'
+                    ' character encoding')
 
             except TypeError:
-                print("Error: Are you sure you are using Video and SubResult instances as parameters?")
+                print(
+                    'Error: Are you sure you are using Video and SubResult'
+                    ' instances as parameters?')
