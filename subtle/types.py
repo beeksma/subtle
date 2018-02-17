@@ -35,10 +35,13 @@ class Video(object):
             video_file.close()
 
         except OSError as e:
-            if e.args[0] == 2:  # Catch exception if path does not exist
+            if e.args[0] == 2:
+                # Catch exception if path does not exist
                 print("Error: Could not find the specified file")
-            elif e.args[0] == 22:  # Catch exception if path is not a valid filename
-                print("Error: Invalid argument specified - please use the full file path")
+            elif e.args[0] == 22:
+                # Catch exception if path is not a valid filename
+                print("Error: Invalid argument specified"
+                      " - please use the full file path")
             else:
                 print("Error: Could not open the specified file")
 
@@ -60,7 +63,8 @@ class SubResult(object):
         if type(video_id) is uuid.UUID:
             self.video_id = video_id
         else:
-            raise TypeError('Error: The provided video_id is not a valid unique identifier')
+            raise TypeError('Error: The provided video_id'
+                            ' is not a valid unique identifier')
 
     def __str__(self):
         return self.file_name
