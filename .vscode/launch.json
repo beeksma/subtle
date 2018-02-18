@@ -9,8 +9,8 @@
             "type": "python",
             "request": "launch",
             "stopOnEntry": false,
-            "pythonPath": "${config:python.pythonPath}",
-            "program": "${config:python.venvPath}/bin/flask",
+            "pythonPath": "${config:python.pythonPath}", // Set 'pythonPath' in settings.json
+            "program": "${config:python.venvPath}/bin/flask", // Set 'venvPath' in settings.json
             "cwd": "${workspaceFolder}",
             "env": {
                 "FLASK_APP": "${workspaceFolder}/Subtle.py"
