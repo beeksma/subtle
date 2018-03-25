@@ -11,12 +11,15 @@ settings = None
 if config_exists:
     with open('config.json', 'r') as json_settings:
         settings = json.load(json_settings, object_pairs_hook=OrderedDict)
-    if not settings["os_username"] and (not settings["os_password"] or not settings["hash"]):
-        raise ValueError('OpenSubtitles credentials have not been set in config.json!')
+    if not settings["os_username"] and \
+       (not settings["os_password"] or not settings["hash"]):
+        raise ValueError(
+            'OpenSubtitles credentials have not been set in config.json!')
     os_handler.user_name = settings["os_username"]
 
     if settings["os_password"]:
-        os_handler.hash = hashlib.md5(settings["os_password"].encode('utf-8')).hexdigest()
+        os_handler.hash = hashlib.md5(settings["os_password"]
+                                      .encode('utf-8')).hexdigest()
         settings["os_password"] = ""
         settings["hash"] = os_handler.hash
         with open('config.json', 'w') as json_settings:
