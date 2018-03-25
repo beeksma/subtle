@@ -123,7 +123,6 @@ class OSHandler(object):
                         video.imdb_id = data['MovieImdbID']
                         video.title = data['MovieName']
                         video.year = data['MovieYear']
-                        return video
                     else:
                         video.title = video.file_name
 
@@ -199,7 +198,7 @@ class OSHandler(object):
                         print(
                             "\nThe following '{0}' subtitles are "
                             "available for '{1}':"
-                            .format(lang, video.file_name))
+                            .format(lang, video.title))
                         print("=" * 10)
                         for sub in self._extract_data('data'):
                             if sub['SubLanguageID'] == lang:
