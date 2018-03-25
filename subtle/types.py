@@ -1,6 +1,7 @@
 import os
 import uuid
 from subtle.components import hash_file
+from web import log
 
 
 class Video(object):
@@ -37,13 +38,13 @@ class Video(object):
         except OSError as e:
             if e.args[0] == 2:
                 # Catch exception if path does not exist
-                print("Error: Could not find the specified file")
+                log.exception("Error: Could not find the specified file")
             elif e.args[0] == 22:
                 # Catch exception if path is not a valid filename
-                print("Error: Invalid argument specified"
-                      " - please use the full file path")
+                log.exception("Error: Invalid argument specified"
+                              " - please use the full file path")
             else:
-                print("Error: Could not open the specified file")
+                log.exception("Error: Could not open the specified file")
 
 
 class SubResult(object):

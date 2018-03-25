@@ -6,6 +6,7 @@ from socket import gaierror
 from xmlrpc.client import ServerProxy, ProtocolError
 from subtle.components import TimedEvent
 from subtle.types import SubResult
+from web import log
 
 
 class OSHandler(object):
@@ -18,7 +19,8 @@ class OSHandler(object):
     user_agent = 'Subtle' + version
 
     def __init__(self):
-        print("\nWelcome to Subtle! Attempting to connect to OpenSubtitles...")
+        log.info("Welcome to Subtle!"
+                 "Attempting to connect to OpenSubtitles...")
         try:
             self.xml_rpc = ServerProxy(OSHandler.server_url, allow_none=True)
             self.language = []
@@ -32,8 +34,8 @@ class OSHandler(object):
             self.server_info = self.xml_rpc.ServerInfo()
         except (gaierror, ProtocolError):
             # Throw exception and exit if we can't connect to OpenSubtitles
-            print("Error: Could not connect to OpenSubtitles.org")
-            sys.exit(2)
+            log.exception("Error: Could not connect to OpenSubtitles.org")
+            sys.exit(1)
 
     @property
     def logged_in(self):
@@ -54,48 +56,55 @@ class OSHandler(object):
 
     def login(self):
         if not self.logged_in:
-            print("\nLogging in...")
+            log.info("Logging in...")
             try:
                 self.query_result = self.xml_rpc.LogIn(
                                         self.user_name, self.hash,
                                         self.language, self.user_agent)
+                if not self._extract_data('token'):
+                    raise ValueError("Error: Login unsuccessful. "
+                                     "Please check your login information"
+                                     "and try again.")
                 self.user_token = self._extract_data('token')
                 self.language = \
                     (self._extract_data('data')['UserPreferedLanguages']) \
                     .split(",")
 
-                print("""Login successful. Token set to "{t:s}","""
-                      " preferred language for subtitles set to '{lang:s}'."
-                      .format(t=self.user_token, lang=",".join(self.language)))
+                log.info("""Login successful. Token set to "{t:s}","""
+                         " preferred language for subtitles set to '{lang:s}'."
+                         .format(t=self.user_token,
+                                 lang=",".join(self.language)))
                 self.query_result = None
                 self.logged_in = True
-            except TypeError:
-                print(
-                    "Error: Login unsuccessful."
-                    " Please check your login information and try again.")
+            except ValueError as e:
+                log.exception(e.args[0])
+                sys.exit(1)
             except TimeoutError:
                 # Throw exception if we can't connect to OpenSubtitles
-                print("Error: Could not connect to OpenSubtitles.org")
+                log.exception("Error: Could not connect to OpenSubtitles.org")
+                sys.exit(1)
+
         else:
-            print("Error: You're already logged in!")
+            log.warn("Error: You're already logged in!")
 
     def logout(self):
-        print("\nLogging out...")
+        log.info("\nLogging out...")
         if self.logged_in:
             try:
                 self.query_result = self.xml_rpc.LogOut(self.user_token)
                 if self._extract_data('status'):
                     self.logged_in = False
                     self.user_token = None
-                    print("Successfully logged out. Thanks for using Subtle!")
+                    log.info("Successfully logged out."
+                             "Thanks for using Subtle!")
                 else:
-                    print("Error: {}".format(self._extract_data('status')))
+                    log.error("Error: {}".format(self._extract_data('status')))
             except TimeoutError:
                 # Throw exception if we can't connect to OpenSubtitles
-                print("Error: Could not connect to OpenSubtitles.org")
+                log.error("Error: Could not connect to OpenSubtitles.org")
                 return
         else:
-            print("Error: Can't log out as you're currently not logged in!")
+            log.warn("Error: Can't log out as you're currently not logged in!")
 
     def _no_operation(self):
         if self.__logged_in:
@@ -103,13 +112,13 @@ class OSHandler(object):
                 self.query_result = self.xml_rpc.NoOperation(self.user_token)
                 if self._extract_data('status').split()[0] != '200':
                     self.logged_in = False
-                    print("Your session timed out, "
-                          "please use Login before doing anything else")
+                    log.warn("Your session timed out, "
+                             "please use Login before doing anything else")
                 else:
-                    print("Staying alive...")
+                    log.info("Staying alive...")
             except TimeoutError:
                 # Throw exception if we can't connect to OpenSubtitles
-                print("Error: Could not connect to OpenSubtitles.org")
+                log.error("Error: Could not connect to OpenSubtitles.org")
                 return
 
     def get_video_info(self, video):
@@ -128,18 +137,18 @@ class OSHandler(object):
 
             except TimeoutError:
                 # Catch exception if we can't connect to OpenSubtitles
-                print("Error: Could not connect to OpenSubtitles.org")
+                log.error("Error: Could not connect to OpenSubtitles.org")
                 return None
 
             except TypeError:
-                print("Error: Are you sure you're using a Video instance?")
+                log.error("Error: Are you sure you're using a Video instance?")
                 return None
 
     def search_subtitles(self, video, limit=500):
         if self.logged_in and video is not None and limit <= 500:
             try:
-                print("\nLooking for subtitles for '{0}'..."
-                      .format(video.file_name))
+                log.info("\nLooking for subtitles for '{0}'..."
+                         .format(video.file_name))
                 # Set params
                 languages = ','.join(self.language)
                 hash_params = \
@@ -195,11 +204,11 @@ class OSHandler(object):
                 if len(self.query_result['data']) > 0:
                     results = dict()
                     for lang in self.language:
-                        print(
+                        log.info(
                             "\nThe following '{0}' subtitles are "
                             "available for '{1}':"
                             .format(lang, video.title))
-                        print("=" * 10)
+                        log.info("=" * 10)
                         for sub in self._extract_data('data'):
                             if sub['SubLanguageID'] == lang:
                                 if lang not in results:
@@ -216,7 +225,7 @@ class OSHandler(object):
                                 s.fps = float(sub['MovieFPS'])
                                 s.matched_by = sub['MatchedBy']
                                 results[lang].append(s)
-                                print(
+                                log.info(
                                     '{0:0>2}. {1} '
                                     '[[ ID: {2} - Download Count: {3} ]]'
                                     .format(
@@ -226,20 +235,20 @@ class OSHandler(object):
                                         s.download_count))
                         results[lang].sort(
                             key=lambda x: x.download_count, reverse=True)
-                        print('')
+                        log.info('')
                     return results
 
-                print('Sorry - could not find any matching subtitles')
+                log.info('Sorry - could not find any matching subtitles')
                 return None
 
             except TimeoutError:
-                print('Error: Could not connect to OpenSubtitles.org')
+                log.error('Error: Could not connect to OpenSubtitles.org')
                 return None
 
             except TypeError:
-                print(
-                    'Error: Are you sure you used a Video instance'
-                    ' as a parameter?')
+                log.exception(
+                             'Error: Are you sure you used a Video instance'
+                             ' as a parameter?')
                 return None
 
     def download_subtitle(self, video, sub_result):
@@ -260,14 +269,14 @@ class OSHandler(object):
                 sub_file.close()
 
             except TimeoutError:
-                print('Error: Could not connect to OpenSubtitles.org')
+                log.error('Error: Could not connect to OpenSubtitles.org')
 
             except UnicodeDecodeError:
-                print(
+                log.error(
                     'Error: Could not decode downloaded subtitle to UTF-8'
                     ' character encoding')
 
             except TypeError:
-                print(
+                log.exception(
                     'Error: Are you sure you are using Video and SubResult'
                     ' instances as parameters?')
