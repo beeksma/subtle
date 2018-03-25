@@ -18,6 +18,10 @@ class OSHandler(object):
     # Please do not change the user agent, nor use it in any other API
     user_agent = 'Subtle' + version
 
+    user_name = None
+    hashed_password = None
+    salt = None
+
     def __init__(self):
         print("\nWelcome to Subtle! Attempting to connect to OpenSubtitles...")
         try:
