@@ -7,28 +7,35 @@
         <a href="/results?sort_by=rating&desc={{is_desc}}">Rating</a> ||
         <a href="/results?sort_by={{sort_by}}&desc={{not is_desc}}">{{order}}</a>
     </div>
-
+    <br/>
     {% for lang in results %}
         <h2>{{ results[lang][0]['language'] }} results for '{{ video.title }}':</h2>
-        <table>
-            <tr>
-                <th><p align="left">Name</p></th>
-                <th><p align="left"># Downloads</p></th>
-                <th><p align="left">Rating</p></th>
-                <th><p align="left">FPS</p></th>
-                <th><p align="left">Download</p></th>
-            </tr>
-            {% for sub in results[lang] %}
-            <tr>
-                <td width="70%"><div><p>{{ sub.file_name }}</p></div></td>
-                <td width=150px>{{ sub.download_count }}</td>
-                <td>{{ sub.rating }}</td>
-                <td>{{ sub.fps }}</td>
-                <td><form action="/download/{{lang}}/{{sub.download_id}}" method="post">
-                <button name="download" type="submit">Download</button>
-                </form></td>
-            </tr>
-            {% endfor %}
-        </table>
+        <div class="table">
+            <table class="table table-sm table-striped">
+                <thead>
+                <tr>
+                    <th style="width: 60%">Name</p></th>
+                    <th style="width: 15%"># Downloads</p></th>
+                    <th style="width: 5%">Rating</p></th>
+                    <th style="width: 10%">FPS</p></th>
+                    <th style="width: 10%">Download</p></th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for sub in results[lang] %}
+                    <tr>
+                        <td><div><p>{{ sub.file_name }}</p></div></td>
+                        <td>{{ sub.download_count }}</td>
+                        <td>{{ sub.rating }}</td>
+                        <td>{{ sub.fps }}</td>
+                        <td style="text-align: center;"><form action="/download/{{lang}}/{{sub.download_id}}" method="post">
+                        <input type="image" src="/static/img/download.svg" onMouseOver="this.src='/static/img/download_r.svg'"
+                            onMouseOut="this.src='/static/img/download.svg'" width="30" alt="Download" />
+                        </form></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     {% endfor %}
 {% endblock %}
