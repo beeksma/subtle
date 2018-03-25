@@ -104,5 +104,5 @@ def download_subtitle(lang, download_id):
                 s for s in current_query.Results[lang] if
                 s.download_id == download_id)
         os_handler.download_subtitle(current_query.Video, sub)
-        flash(str.format("Downloading {s.file_name}...", s=sub), 'info')
+        flash(str.format("Downloading {s.file_name}...", s=sub), 'success')
     return redirect(url_for('get_result'))

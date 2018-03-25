@@ -63,7 +63,7 @@
             {% with messages = get_flashed_messages(category_filter=["success"]) %}
                 {% if messages %}
                     <div class="popups">
-                        <div class="alert alert-success fade in" role="alert">
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
                             {% for message in messages %}
                                 {{ message }}
                             {% endfor %}
