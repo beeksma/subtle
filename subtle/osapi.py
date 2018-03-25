@@ -1,5 +1,4 @@
 import base64
-import hashlib
 import os
 import sys
 import zlib
@@ -18,15 +17,13 @@ class OSHandler(object):
     # Please do not change the user agent, nor use it in any other API
     user_agent = 'Subtle' + version
 
-    user_name = None
-    hashed_password = None
-    salt = None
-
     def __init__(self):
         print("\nWelcome to Subtle! Attempting to connect to OpenSubtitles...")
         try:
             self.xml_rpc = ServerProxy(OSHandler.server_url, allow_none=True)
             self.language = []
+            self.user_name = None
+            self.hash = None
             self.user_token = None
             self.__logged_in = False
             self.keep_alive_timer = TimedEvent(
@@ -55,13 +52,12 @@ class OSHandler(object):
         return self.query_result.get(key) if \
             self.query_result['status'].split()[0] == '200' else None
 
-    def login(self, username, password):
+    def login(self):
         if not self.logged_in:
             print("\nLogging in...")
-            hashed_password = hashlib.md5(password.encode('utf-8')).hexdigest()
             try:
                 self.query_result = self.xml_rpc.LogIn(
-                                        username, hashed_password,
+                                        self.user_name, self.hash,
                                         self.language, self.user_agent)
                 self.user_token = self._extract_data('token')
                 self.language = \

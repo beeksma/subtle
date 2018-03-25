@@ -1,1 +1,5 @@
-{"os_username": "your OpenSubtitles username", "os_password": "your OpenSubtitles password", "salt": ""}
+{
+    "os_username": "your OpenSubtitles username",
+    "os_password": "your OpenSubtitles password (will be hashed on first run)",
+    "hash": ""
+}
