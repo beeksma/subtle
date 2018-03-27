@@ -12,6 +12,8 @@ class SubtitleQuery(object):
 class Navigator(object):
     __path = None
     __root = None
+    dirs = None
+    files = None
 
     @property
     def path(self):

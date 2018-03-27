@@ -55,35 +55,41 @@ def get_result():
 @app.route('/browse')
 def browse():
     try:
-        path = request.args.get('dir', default=navigator.root, type=str)
-        if path in 'parent':
+        path = request.args.get('dir', default=-2, type=int)
+        if path is -2:
+            path = navigator.root
+        elif path is -1:
             path = navigator.parent
+        else:
+            path = navigator.dirs[int(path)]
         navigator.path = os.path.join(navigator.path, path)
-        dirs = sorted([d for d in os.listdir(navigator.path)
-                       if os.path.isdir(os.path.join(navigator.path, d)) and
-                       not d.startswith('.')])
+        navigator.dirs = sorted([d for d in os.listdir(navigator.path)
+                                if os.path.isdir(
+                                    os.path.join(navigator.path, d)) and
+                                not d.startswith('.')])
         supported_extensions = ('.mkv', '.avi', '.mp4')
-        files = sorted([f for f in os.listdir(navigator.path)
-                        if os.path.isfile(os.path.join(navigator.path, f)) and
-                        f.endswith(supported_extensions)])
+        navigator.files = sorted([f for f in os.listdir(navigator.path)
+                                 if os.path.isfile(
+                                     os.path.join(navigator.path, f)) and
+                                 f.endswith(supported_extensions)])
 
         return render_template("browse.html",
                                title='Select a video',
-                               directories=dirs,
-                               files=files,
+                               directories=navigator.dirs,
+                               files=navigator.files,
                                path=navigator.path,
                                no_results=current_query is None,
                                not_root=(path != navigator.root))
-    except FileNotFoundError:
+    except IndexError:
         flash("Something went wrong, please try again", 'error')
         return redirect(url_for('browse'))
 
 
 @app.route('/select')
 def select():
-    file_name = request.args.get('file', type=str)
+    file_id = request.args.get('file', type=int)
     global current_video_path
-    new_video_path = os.path.join(navigator.path, file_name)
+    new_video_path = os.path.join(navigator.path, navigator.files[file_id])
     if os.path.isfile(new_video_path):
         current_video_path = new_video_path
         global current_query

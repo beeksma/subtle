@@ -11,19 +11,19 @@
             </thead>
             <tbody>
             {% if not_root %}
-            <tr class='clickable-row' data-url='/browse?dir=parent'>
+            <tr class='clickable-row' data-url='/browse?dir=-1'>
                 <td>..</td>
                 <td>Parent directory</small></td>
             </tr>
             {% endif %}
             {% for dir in directories %}
-            <tr class='clickable-row' data-url='/browse?dir={{ dir }}'>
+            <tr class='clickable-row' data-url='/browse?dir={{ directories.index(dir) }}'>
                 <td>{{ dir }}</td>
                 <td>Directory</td>
             </tr>
             {% endfor %}
             {% for file in files %}
-            <tr class='clickable-row' data-url='/select?file={{ file }}'>
+            <tr class='clickable-row' data-url='/select?file={{ files.index(file) }}'>
                 <td>{{ file }}</td>
                 <td>Video file</td>
             </tr>
