@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>Please select a video file</h2>
+<h2>
+    {% if not_root %}
+        {{ path }}
+    {% else %}
+        Please select a video file
+    {% endif %}
+</h2>
     <div class="table">
         <table class="table table-sm table-hover">
             <thead>
