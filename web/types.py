@@ -11,6 +11,7 @@ class SubtitleQuery(object):
 
 class Navigator(object):
     __path = None
+    __root = None
 
     @property
     def path(self):
@@ -26,7 +27,12 @@ class Navigator(object):
 
     @property
     def root(self):
-        return os.path.abspath(os.sep)
+        return self.__root
+
+    @root.setter
+    def root(self, value):
+        self.__root = value
 
     def __init__(self):
+        self.root = os.path.abspath(os.sep)
         self.path = self.root

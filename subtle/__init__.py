@@ -1,7 +1,7 @@
 from subtle.osapi import OSHandler
 from pathlib import Path
 from collections import OrderedDict
-from web import log, wz_log, logger
+from web import log, wz_log, logger, navigator
 import sys
 import json
 import hashlib
@@ -37,6 +37,10 @@ if config_exists:
         if settings["debug"].lower() == 'yes':
             logger.setLevel(log.DEBUG)
             wz_log.setLevel(log.DEBUG)
+
+        # Set root folder if valid directory
+        if Path(settings["root"]).is_dir():
+            navigator.root = settings["root"]
 
     except Exception as e:
         log.error(e.args[0])
