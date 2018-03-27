@@ -88,7 +88,7 @@ class OSHandler(object):
             log.warn("Error: You're already logged in!")
 
     def logout(self):
-        log.info("\nLogging out...")
+        log.info("Logging out...")
         if self.logged_in:
             try:
                 self.query_result = self.xml_rpc.LogOut(self.user_token)
@@ -96,7 +96,7 @@ class OSHandler(object):
                     self.logged_in = False
                     self.user_token = None
                     log.info("Successfully logged out."
-                             "Thanks for using Subtle!")
+                             " Thanks for using Subtle!")
                 else:
                     log.error("Error: {}".format(self._extract_data('status')))
             except TimeoutError:
@@ -147,7 +147,7 @@ class OSHandler(object):
     def search_subtitles(self, video, limit=500):
         if self.logged_in and video is not None and limit <= 500:
             try:
-                log.info("\nLooking for subtitles for '{0}'..."
+                log.info("Looking for subtitles for '{0}'..."
                          .format(video.file_name))
                 # Set params
                 languages = ','.join(self.language)
@@ -205,7 +205,7 @@ class OSHandler(object):
                     results = dict()
                     for lang in self.language:
                         log.info(
-                            "\nThe following '{0}' subtitles are "
+                            "The following '{0}' subtitles are "
                             "available for '{1}':"
                             .format(lang, video.title))
                         log.info("=" * 10)
