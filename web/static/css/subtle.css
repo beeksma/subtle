@@ -10,6 +10,11 @@ body    {
     text-align: center;
 }
 
+#load_screen {
+  display: none;
+  text-align: center;
+}
+
 /* Custom red navbar */
 .navbar {
   background-color: #b21810;

@@ -1,12 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
-<h2>
-    {% if not_root %}
-        {{ path }}
-    {% else %}
-        Please select a video file
-    {% endif %}
-</h2>
+<div id="load_screen">
+    <br><br><br>
+    <p align="center"><img height="100" src="/static/img/subtle_r.svg"/></p>
+    <h3>Searching for subtitles...</h3>
+    <br><br><br>
+</div>
+<div id="browser">
+    <h2>
+        {% if not_root %}
+            {{ path }}
+        {% else %}
+            Please select a video file
+        {% endif %}
+    </h2>
     <div class="table">
         <table class="table table-sm table-hover">
             <thead>
@@ -17,19 +24,19 @@
             </thead>
             <tbody>
             {% if not_root %}
-            <tr class='clickable-row' style="cursor: pointer" data-url='/browse?dir=-1'>
+            <tr class='clickable-file' style="cursor: pointer" data-url='/browse?dir=-1'>
                 <td>..</td>
                 <td>Parent directory</small></td>
             </tr>
             {% endif %}
             {% for dir in directories %}
-            <tr class='clickable-row' style="cursor: pointer" data-url='/browse?dir={{ directories.index(dir) }}'>
+            <tr class='clickable-dir' style="cursor: pointer" data-url='/browse?dir={{ directories.index(dir) }}'>
                 <td>{{ dir }}</td>
                 <td>Directory</td>
             </tr>
             {% endfor %}
             {% for file in files %}
-            <tr class='clickable-row' style="cursor: pointer" data-url='/select?file={{ files.index(file) }}'>
+            <tr class='clickable-file' style="cursor: pointer" data-url='/select?file={{ files.index(file) }}'>
                 <td>{{ file }}</td>
                 <td>Video file</td>
             </tr>
@@ -37,4 +44,5 @@
             </tbody>
         </table>
     </div>
+</div>
 {% endblock %}
