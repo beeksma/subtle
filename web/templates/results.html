@@ -30,7 +30,7 @@
                         <td>{{ sub.fps }}</td>
                         <td style="text-align: center;"><form action="/download/{{lang}}/{{sub.download_id}}" method="post">
                         <input type="image" src="/static/img/download.svg" onMouseOver="this.src='/static/img/download_r.svg'"
-                            onMouseOut="this.src='/static/img/download.svg'" width="30" alt="Download" />
+                            onMouseOut="this.src='/static/img/download.svg'" style="cursor: pointer" width="30" alt="Download" />
                         </form></td>
                     </tr>
                     {% endfor %}
