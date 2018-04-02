@@ -107,7 +107,7 @@ def select():
 
 @app.route('/download/<lang>/<int:download_id>', methods=['POST'])
 def download_subtitle(lang, download_id):
-    os_handler.login()    
+    os_handler.login()
     global current_query
     if current_query is not None:
         sub = next(
