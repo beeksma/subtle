@@ -1,7 +1,7 @@
 from subtle.osapi import OSHandler
 from pathlib import Path
 from collections import OrderedDict
-from web import log, wz_log, logger, navigator
+from web import log, wz_log, logger, navigator, root_location
 import sys
 import json
 import hashlib
@@ -44,7 +44,7 @@ if config_exists:
 
         # Set root folder if valid directory
         if Path(settings["root"]).is_dir():
-            navigator.root = settings["root"]
+            root_location = settings["root"]
 
     except Exception as e:
         log.error(e.args[0])

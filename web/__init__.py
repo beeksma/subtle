@@ -1,6 +1,7 @@
 from flask import Flask
 from web.types import Navigator
 import logging as log
+import os
 
 # Set up logging
 wz_log = log.getLogger('werkzeug')
@@ -10,6 +11,7 @@ log.basicConfig(level=log.WARN, filename="subtle.log", filemode="a+",
 logger = log.getLogger()
 
 # Run Subtle
+root_location = os.path.abspath(os.sep)
 app = Flask(__name__)
 app.config.from_object('flaskconf')
 navigator = Navigator()

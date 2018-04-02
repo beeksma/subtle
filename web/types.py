@@ -17,7 +17,7 @@ class Navigator(object):
 
     @property
     def path(self):
-        return self.__path
+        return self.__path if self.__path else self.__root
 
     @path.setter
     def path(self, value):
@@ -37,4 +37,3 @@ class Navigator(object):
 
     def __init__(self):
         self.root = os.path.abspath(os.sep)
-        self.path = self.root

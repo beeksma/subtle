@@ -1,13 +1,14 @@
 from flask import render_template, url_for, redirect, request, flash
 from web import app
 from subtle.types import Video
-from subtle import os_handler
+from subtle import os_handler, root_location
 from web.types import SubtitleQuery
 from web import navigator
 import os
 
 current_query = None
 current_video_path = None
+navigator.root = root_location
 
 
 @app.route('/home')
