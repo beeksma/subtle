@@ -30,6 +30,7 @@ class OSHandler(object):
             self.__logged_in = False
             self.keep_alive_timer = TimedEvent(
                 900, self._no_operation, autostart=False)
+            self.keep_alive = False
             self.query_result = None
             self.server_info = self.xml_rpc.ServerInfo()
         except (gaierror, ProtocolError):
@@ -41,6 +42,7 @@ class OSHandler(object):
     def logged_in(self):
         # Resets the timer that keeps the connection alive
         self.keep_alive_timer.reset()
+        self.keep_alive = True
         return self.__logged_in
 
     @logged_in.setter
@@ -85,7 +87,7 @@ class OSHandler(object):
                 sys.exit(1)
 
         else:
-            log.warn("Error: You're already logged in!")
+            log.info("Already logged in")
 
     def logout(self):
         log.info("Logging out...")
@@ -95,6 +97,7 @@ class OSHandler(object):
                 if self._extract_data('status'):
                     self.logged_in = False
                     self.user_token = None
+                    self.keep_alive = False
                     log.info("Successfully logged out."
                              " Thanks for using Subtle!")
                 else:
@@ -104,22 +107,27 @@ class OSHandler(object):
                 log.error("Error: Could not connect to OpenSubtitles.org")
                 return
         else:
-            log.warn("Error: Can't log out as you're currently not logged in!")
+            log.info("Already logged out")
 
     def _no_operation(self):
         if self.__logged_in:
-            try:
-                self.query_result = self.xml_rpc.NoOperation(self.user_token)
-                if self._extract_data('status').split()[0] != '200':
-                    self.logged_in = False
-                    log.warn("Your session timed out, "
-                             "please use Login before doing anything else")
-                else:
-                    log.info("Staying alive...")
-            except TimeoutError:
-                # Throw exception if we can't connect to OpenSubtitles
-                log.error("Error: Could not connect to OpenSubtitles.org")
-                return
+            if self.keep_alive:
+                try:
+                    self.keep_alive = False
+                    self.query_result = \
+                        self.xml_rpc.NoOperation(self.user_token)
+                    if self._extract_data('status').split()[0] != '200':
+                        self.logged_in = False
+                        log.warn("Your session timed out, "
+                                 "please use Login before doing anything else")
+                    else:
+                        log.info("Staying alive...")
+                except TimeoutError:
+                    # Throw exception if we can't connect to OpenSubtitles
+                    log.error("Error: Could not connect to OpenSubtitles.org")
+                    return
+            else:
+                self.logout()
 
     def get_video_info(self, video):
         if self.logged_in and video is not None:

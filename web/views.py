@@ -55,6 +55,7 @@ def get_result():
 @app.route('/browse')
 def browse():
     try:
+        os_handler.login()
         path = request.args.get('dir', default=-2, type=int)
         if path is -2:
             path = navigator.root
@@ -87,6 +88,7 @@ def browse():
 
 @app.route('/select')
 def select():
+    os_handler.login()
     file_id = request.args.get('file', type=int)
     global current_video_path
     new_video_path = os.path.join(navigator.path, navigator.files[file_id])
@@ -104,6 +106,7 @@ def select():
 
 @app.route('/download/<lang>/<int:download_id>', methods=['POST'])
 def download_subtitle(lang, download_id):
+    os_handler.login()    
     global current_query
     if current_query is not None:
         sub = next(

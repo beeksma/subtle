@@ -6,7 +6,11 @@ import sys
 import json
 import hashlib
 
-os_handler = OSHandler()
+try:
+    os_handler = OSHandler()
+except Exception:
+    log.error("ERROR: Could not connect to OpenSubtitles.")
+    sys.exit(1)
 config_exists = Path("config.json").is_file()
 settings = None
 
@@ -49,5 +53,3 @@ else:
     raise ValueError("ERROR: 'config.json' is missing in root folder."
                      " Copy 'config.json.sample' to 'config.json', "
                      "add your OpenSubtitles credentials, and try again!")
-
-os_handler.login()
