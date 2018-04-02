@@ -21,13 +21,13 @@
           <div class="collapse navbar-collapse" id="navbar">
             <ul class="navbar-nav mr-auto">
               <li class="nav-item">
-                <a class="nav-link" href="/browse">Select a video</a>
+                <a class="nav-link" href="{{ url_for('browse') }}">Select a video</a>
               </li>
               <li class="nav-item">
-                <a class="nav-link{% if no_results %} disabled{% endif %}" href="/results">Results</a>
+                <a class="nav-link{% if no_results %} disabled{% endif %}" href="{{ url_for('get_result') }}">Results</a>
               </li>
             </ul>
-            <a href="/"><img src="/static/img/subtle_w.svg" height="40px" class="img-responsive" alt="Subtle"></a>
+            <a href="{{ url_for('home') }}"><img src="/static/img/subtle_w.svg" height="40px" class="img-responsive" alt="Subtle"></a>
           </div>
         </nav>
 

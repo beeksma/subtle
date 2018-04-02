@@ -11,8 +11,13 @@ current_video_path = None
 navigator.root = root_location
 
 
-@app.route('/home')
 @app.route('/')
+def root_home():
+    return redirect(url_for('home'))
+
+
+@app.route('/subtle/home')
+@app.route('/subtle')
 def home():
     greeting = "Hello and welcome to Subtle!"
 
@@ -22,7 +27,7 @@ def home():
                            no_results=current_query is None)
 
 
-@app.route('/results')
+@app.route('/subtle/results')
 def get_result():
     sort_by = request.args.get('sort_by', default="download_count", type=str)
     desc = True \
@@ -53,7 +58,7 @@ def get_result():
                            no_results=current_query is None)
 
 
-@app.route('/browse')
+@app.route('/subtle/browse')
 def browse():
     try:
         os_handler.login()
@@ -87,7 +92,7 @@ def browse():
         return redirect(url_for('browse'))
 
 
-@app.route('/select')
+@app.route('/subtle/select')
 def select():
     os_handler.login()
     file_id = request.args.get('file', type=int)
@@ -105,7 +110,7 @@ def select():
         return redirect(url_for('browse'))
 
 
-@app.route('/download/<lang>/<int:download_id>', methods=['POST'])
+@app.route('/subtle/download/<lang>/<int:download_id>', methods=['POST'])
 def download_subtitle(lang, download_id):
     os_handler.login()
     global current_query

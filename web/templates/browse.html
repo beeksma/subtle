@@ -24,19 +24,19 @@
             </thead>
             <tbody>
             {% if not_root %}
-            <tr class='clickable-file' style="cursor: pointer" data-url='/browse?dir=-1'>
+            <tr class='clickable-dir' style="cursor: pointer" data-url='{{ url_for('browse') }}?dir=-1'>
                 <td>..</td>
                 <td>Parent directory</small></td>
             </tr>
             {% endif %}
             {% for dir in directories %}
-            <tr class='clickable-dir' style="cursor: pointer" data-url='/browse?dir={{ directories.index(dir) }}'>
+            <tr class='clickable-dir' style="cursor: pointer" data-url='{{ url_for('browse') }}?dir={{ directories.index(dir) }}'>
                 <td>{{ dir }}</td>
                 <td>Directory</td>
             </tr>
             {% endfor %}
             {% for file in files %}
-            <tr class='clickable-file' style="cursor: pointer" data-url='/select?file={{ files.index(file) }}'>
+            <tr class='clickable-file' style="cursor: pointer" data-url='{{ url_for('select') }}?file={{ files.index(file) }}'>
                 <td>{{ file }}</td>
                 <td>Video file</td>
             </tr>
