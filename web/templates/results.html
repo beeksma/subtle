@@ -29,8 +29,8 @@
                         <td>{{ sub.rating }}</td>
                         <td>{{ sub.fps }}</td>
                         <td style="text-align: center;"><form action="/subtle/download/{{lang}}/{{sub.download_id}}" method="post">
-                        <input type="image" src="/static/img/download.svg" onMouseOver="this.src='/static/img/download_r.svg'"
-                            onMouseOut="this.src='/static/img/download.svg'" style="cursor: pointer" width="30" alt="Download" />
+                        <input type="image" src="{{ url_for('static', filename='img/download.svg') }}" onMouseOver="this.src=&quot;{{ url_for('static', filename='img/download_r.svg') }}&quot;"
+                            onMouseOut="this.src=&quot;{{ url_for('static', filename='img/download.svg') }}&quot;" style="cursor: pointer" width="30" alt="Download" />
                         </form></td>
                     </tr>
                     {% endfor %}
