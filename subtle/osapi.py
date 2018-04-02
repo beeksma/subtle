@@ -85,7 +85,6 @@ class OSHandler(object):
                 # Throw exception if we can't connect to OpenSubtitles
                 log.exception("Error: Could not connect to OpenSubtitles.org")
                 sys.exit(1)
-
         else:
             log.info("Already logged in")
 
