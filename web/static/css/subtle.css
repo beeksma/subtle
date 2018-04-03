@@ -15,6 +15,19 @@ body    {
   text-align: center;
 }
 
+#browser {
+  height: 50px;
+  line-height: 50px;
+}
+
+.table-borderless > tbody > tr > th,
+.table-borderless > tfoot > tr > td,
+.table-borderless > tfoot > tr > th,
+.table-borderless > thead > tr > td,
+.table-borderless > thead > tr > th {
+    border: none;
+}
+
 /* Custom red navbar */
 .navbar {
   background-color: #b21810;
