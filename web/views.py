@@ -22,7 +22,7 @@ def root_home():
 @app.route('/subtle/')
 @app.route('/subtle')
 def home():
-    greeting = "Hello and welcome to Subtle!"
+    greeting = "Welcome to Subtle!"
     return render_template("index.html",
                            title='Welcome to Subtle',
                            greeting=greeting,
