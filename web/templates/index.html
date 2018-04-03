@@ -1,17 +1,15 @@
 {% extends "base.html" %}
 {% block content %}
 <div class="index">
-    <img src="{{ url_for('static', filename='img/subtle_r.svg') }}" height="200px" class="img-responsive" alt="Subtle">
+    <img src="{{ url_for('static', filename='img/subtle_r.svg') }}" height="150px" class="img-responsive" alt="Subtle">
     <br><br>
     <h1>{{ greeting }}</h1>
     <p class="lead"><a href="{{ url_for('browse') }}"><b>Select a video</b></a> to get started.</p>
 </div>
-<footer class="page-footer font-small blue pt-4 mt-4">
-    <div class="footer-copyright py-3 text-center">
+<div class="footer-copyright py-3 text-center">
         Subtle by 
         <strong>
             <a href="https://github.com/beeksma" class="text-muted" target="_new">Beeksma</a>
         </strong>
     </div>
-</footer>
 {% endblock %}
