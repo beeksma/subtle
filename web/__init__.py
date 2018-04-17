@@ -12,7 +12,7 @@ logger = log.getLogger()
 
 # Run Subtle
 root_location = os.path.abspath(os.sep)
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/subtle')
 app.config.from_object('flaskconf')
 navigator = Navigator()
 from web import views
