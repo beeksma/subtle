@@ -148,3 +148,7 @@ def download_subtitle(lang, download_id):
         flash("OpenSubtitles is currently over capacity. Try again later.",
               'error')
         return redirect(url_for('get_result'))
+    except PermissionError:
+        flash("Could not save sub to folder. Do I have the right permissions?",
+              'error')
+        return redirect(url_for('get_result'))
