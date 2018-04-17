@@ -51,9 +51,14 @@ def get_result():
         for lang in current_query.Results:
             current_query.Results[lang].sort(
                 key=lambda x: getattr(x, sort_by), reverse=desc)
+        
+        video_title = current_query.Video.title
+        video_title = video_title[:15] + '...' \
+            if len(video_title) > 15 else video_title
 
         return render_template("results.html",
                                title='Results',
+                               video_title=video_title,
                                video=current_query.Video,
                                sort_by=sort_by,
                                is_desc=desc,

@@ -20,6 +20,13 @@ body    {
   line-height: 50px;
 }
 
+@media(max-width: 480px) {
+  h2 {
+    font-size: 13pt;
+    font-weight: bold;
+  }
+}
+
 .table-borderless > tbody > tr > th,
 .table-borderless > tfoot > tr > td,
 .table-borderless > tfoot > tr > th,

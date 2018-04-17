@@ -9,8 +9,8 @@
     </div>
     <br/>
     {% for lang in results %}
-        <h2>{{ results[lang][0]['language'] }} results for '{{ video.title }}':</h2>
-        <div class="table">
+        <h2>{{ results[lang][0]['language'] }} results for '{{ video_title }}':</h2>
+        <div class="table-responsive">
             <table class="table table-sm table-striped">
                 <thead>
                 <tr>
@@ -37,5 +37,6 @@
                 </tbody>
             </table>
         </div>
+        <br>
     {% endfor %}
 {% endblock %}
