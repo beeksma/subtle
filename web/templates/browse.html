@@ -14,8 +14,8 @@
             Please select a video file
         {% endif %}
     </h2>
-    <div class="table">
-        <table class="table-responsive table-sm table-borderless table-hover">
+    <div class="table-responsive">
+        <table class="table table-borderless table-hover">
             <tbody>
             {% if not_root %}
             <tr class='clickable-dir' style="cursor: pointer" data-url='{{ url_for('browse') }}?dir=-1'>
