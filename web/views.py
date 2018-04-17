@@ -142,7 +142,9 @@ def download_subtitle(lang, download_id):
                     s for s in current_query.Results[lang] if
                     s.download_id == download_id)
             os_handler.download_subtitle(current_query.Video, sub)
-            flash(str.format("Downloading {s.file_name}...", s=sub), 'success')
+            file_name = sub.file_name[:30] \
+                if len(sub.file_name) > 30 else sub.file_name
+            flash(str.format("Downloading {0}...", file_name), 'success')
         return redirect(url_for('get_result'))
     except (ProtocolError, ResponseNotReady):
         flash("OpenSubtitles is currently over capacity. Try again later.",
