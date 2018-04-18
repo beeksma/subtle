@@ -230,8 +230,8 @@ class OSHandler(object):
                                 s.lang_id = sub['ISO639']
                                 s.language = sub['LanguageName']
                                 s.rating = float(sub['SubRating'])
-                                s.is_HD = bool(sub['SubHD'])
-                                s.is_HI = bool(sub['SubHearingImpaired'])
+                                s.is_HD = sub['SubHD'] is '1'
+                                s.is_HI = sub['SubHearingImpaired'] is '1'
                                 s.download_count = int(sub['SubDownloadsCnt'])
                                 s.fps = float(sub['MovieFPS'])
                                 s.matched_by = sub['MatchedBy']
