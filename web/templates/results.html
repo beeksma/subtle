@@ -14,23 +14,36 @@
             <table class="table table-sm table-striped">
                 <thead>
                 <tr>
-                    <th style="width: 60%">Name</p></th>
-                    <th style="width: 15%"># Downloads</p></th>
-                    <th style="width: 5%">Rating</p></th>
-                    <th style="width: 10%">FPS</p></th>
-                    <th style="width: 10%">Download</p></th>
+                    <th style="width: 5%;"></th>
+                    <th style="width: 60%">Name</th>
+                    <th style="width: 10%">Downloads</th>
+                    <th style="width: 5%">Rating</th>
+                    <th style="width: 5%">FPS</th>
+                    <th style="width: 10%">Download</th>
                 </tr>
                 </thead>
                 <tbody>
                     {% for sub in results[lang] %}
                     <tr>
-                        <td><div><p>{{ sub.file_name }}</p></div></td>
-                        <td>{{ sub.download_count }}</td>
-                        <td>{{ sub.rating }}</td>
-                        <td>{{ sub.fps }}</td>
-                        <td style="text-align: center;"><form action="/subtle/download/{{lang}}/{{sub.download_id}}" method="post">
+                        <td class="vert-aligned center-text">
+                        {% if sub.is_HD %}
+                            <img height="20" title='Subtitle for high definition video' src="{{ url_for('static', filename='img/hd.svg') }}"/>
+                        {% else %}
+                            <img height="20" src="{{ url_for('static', filename='img/nhd.svg') }}"/>                            
+                        {% endif %}
+                        {% if sub.is_HI %}
+                            <img height="20" title='Subtitle for hearing impaired' src="{{ url_for('static', filename='img/hi.svg') }}"/>
+                        {% else %}
+                            <img height="20" src="{{ url_for('static', filename='img/nhi.svg') }}"/>                            
+                        {% endif %}
+                        </td>
+                        <td class="vert-aligned">{{ sub.file_name }}</td>
+                        <td class="vert-aligned center-text">{{ sub.download_count }}</td>
+                        <td class="vert-aligned center-text">{{ sub.rating }}</td>
+                        <td class="vert-aligned center-text">{{ sub.fps }}</td>
+                        <td class="vert-aligned center-text"><form action="/subtle/download/{{lang}}/{{sub.download_id}}" method="post">
                         <input type="image" src="{{ url_for('static', filename='img/download.svg') }}" onMouseOver="this.src=&quot;{{ url_for('static', filename='img/download_r.svg') }}&quot;"
-                            onMouseOut="this.src=&quot;{{ url_for('static', filename='img/download.svg') }}&quot;" style="cursor: pointer" width="30" alt="Download" />
+                            onMouseOut="this.src=&quot;{{ url_for('static', filename='img/download.svg') }}&quot;" style="cursor: pointer" width="30" alt="Download" title="Download this subtitle" />
                         </form></td>
                     </tr>
                     {% endfor %}

@@ -31,6 +31,14 @@ body    {
   }
 }
 
+.table tbody > tr > td.vert-aligned {
+  vertical-align: middle;
+}
+
+td.center-text {
+  text-align: center;
+}
+
 .table-borderless > tbody > tr > th,
 .table-borderless > tfoot > tr > td,
 .table-borderless > tfoot > tr > th,
