@@ -1,0 +1,18 @@
+[Unit]
+Description=Subtle instance (Gunicorn)
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+PIDFile=/run/gunicorn/pid
+RuntimeDirectory=gunicorn
+WorkingDirectory=/opt/Subtle
+ExecStart=/usr/local/bin/gunicorn --pid subtle.pid   \
+          -b 0.0.0.0:8979 Subtle:app
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
