@@ -69,10 +69,13 @@ class OSHandler(object):
                                      "Please check your login information"
                                      "and try again.")
                 self.user_token = self._extract_data('token')
-                self.language = \
-                    (self._extract_data('data')['UserPreferedLanguages']) \
-                    .split(",")
-
+                try:
+                    self.language = \
+                        (self._extract_data('data')['UserPreferedLanguages']) \
+                        .split(",")
+                # Set language to English if no preferred languages set in OS
+                except KeyError:
+                    self.language = {'eng'}
                 log.info("""Login successful. Token set to "{t:s}","""
                          " preferred language for subtitles set to '{lang:s}'."
                          .format(t=self.user_token,
