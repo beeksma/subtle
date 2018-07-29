@@ -39,6 +39,8 @@ docker create \
       beeksma/subtle:latest
 ```
 
+**Subtle now listens on port 8979 and can be accessed in your browser via http://127.0.0.1:8979/subtle.** If you're not running Subtle on your local machine, replace '127.0.0.1' with the correct IP address. Optionally you can [set up a reverse proxy](https://duckduckgo.com/?q=how+to+set+up+a+reverse+proxy&t=ffab&ia=web) in order to use your domain name instead.
+
 **Parameters**
 
 *Note that when parameters are split into two halves, separated by a colon, the left hand side represents the host and the right the container side.*
