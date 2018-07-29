@@ -14,7 +14,15 @@
 
  - Write-access to the directories containing your video files
  - Docker or Python 3.5.4 + some dependencies
- - A free [OpenSubtitles.org](https://www.opensubtitles.org) account 
+ - A free [OpenSubtitles.org](https://www.opensubtitles.org) account
+
+## Language selection
+
+By default Subtle will search for English subtitles, however you can download subtitles for multiple languages of your choice as well: 
+1. Open [OpenSubtitles.org](https://www.opensubtitles.org) in your browser
+2. Log into your account and click on your username at the top of the page to open your profile
+3. After selecting your preferred languages, click on 'Commit changes'
+4. (Re)start Subtle
 
 ## Usage (Docker)
 
@@ -30,7 +38,6 @@ docker create \
       -v <path/to/video-files>:/video \
       beeksma/subtle:latest
 ```
-
 
 **Parameters**
 
