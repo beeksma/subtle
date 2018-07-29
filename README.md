@@ -31,6 +31,7 @@ docker create \
       beeksma/subtle:latest
 ```
 
+
 **Parameters**
 
 *Note that when parameters are split into two halves, separated by a colon, the left hand side represents the host and the right the container side.*
@@ -50,11 +51,17 @@ docker create \
 
 *Note that you should use either OS_PASSWORD or OS_HASH, not both.*
 
-For example:
+**Examples of running Subtle using OS_HASH**
+
 
 ```
 $ echo -n mypassword | md5sum
 34819d7beeabb9260a5c854bc85b3e44  -
+```
+
+*Using docker create:*
+
+```
 $ docker create \
       --name subtle \
       -p 8979:8979 \
@@ -63,6 +70,26 @@ $ docker create \
       -e PUID=1000 -e PGID=1000 \
       -v /mnt/films:/video \
       beeksma/subtle:latest
+```
+
+*Using docker-compose:*
+
+```
+version: '3'
+services:
+  subtle:
+    container_name: subtle
+    image: beeksma/subtle
+    restart: always
+    volumes:
+      - /mnt/films:/video
+    ports:
+      - 8979:8979
+    environment:
+      - OS_USER=myusername
+      - OS_HASH=34819d7beeabb9260a5c854bc85b3e44
+      - PUID=1000
+      - PGID=1000
 ```
 
 ## Installation (Debian/Ubuntu)
