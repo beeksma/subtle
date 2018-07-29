@@ -1,25 +1,70 @@
 # Welcome to Subtle
-<p align="center">
-<img src="https://user-images.githubusercontent.com/1226128/39083582-159431a6-455e-11e8-86c6-3da36a564d6e.png" alt="Subtle">
-</p>
+![Subtle](https://user-images.githubusercontent.com/1226128/39083582-159431a6-455e-11e8-86c6-3da36a564d6e.png)
 
 
 **Subtle is a light-weight subtitle downloader with multi-language support, written in Python and utilising the [OpenSubtitles.org API](http://trac.opensubtitles.org/projects/opensubtitles/wiki/XMLRPC)**. It runs as a service and provides an intuitive way to pick the video file you need subtitles for. Once you select a subtitle from the results returned by OpenSubtiles, this subtitle is automatically downloaded to the location of the selected video file. It's renamed to match the file name of the video, so you can start using it in your favourite video player right away.
 
 ## Screenshots
 
-<p align="center">
-<img src="https://user-images.githubusercontent.com/1226128/39084520-3b7e2244-456f-11e8-8e35-d22ebf6a33da.png" alt="The landing page">
-<img src="https://user-images.githubusercontent.com/1226128/39084523-519c613a-456f-11e8-9684-b16cd5b72d14.png" alt="Navigate your video folders">
-<img src="https://user-images.githubusercontent.com/1226128/39084533-73c87fbe-456f-11e8-88ff-fbfa53463ca0.png" alt="Select a subtitle to download">
-</p>
+![Landing page](https://user-images.githubusercontent.com/1226128/39084520-3b7e2244-456f-11e8-8e35-d22ebf6a33da.png)
+![Navigate your video folders](https://user-images.githubusercontent.com/1226128/39084523-519c613a-456f-11e8-9684-b16cd5b72d14.png)
+![Select a subtitle to download](https://user-images.githubusercontent.com/1226128/39084533-73c87fbe-456f-11e8-88ff-fbfa53463ca0.png)
 
 ## Requirements
+
+ - Write-access to the directories containing your video files
+ - Docker or Python 3.5.4 + some dependencies
+ - A free [OpenSubtitles.org](https://www.opensubtitles.org) account 
+
+## Usage (Docker)
+
+To run Subtle using the latest automated build from [Docker Hub](https://hub.docker.com/r/beeksma/subtle/), use:
  
- - A Linux installation (but should work on Windows as well) with write-access to the directories containing your video files
- - Python 3.5.4 + some dependencies
- - A (free) account on [OpenSubtitles.org](https://www.opensubtitles.org)
- 
+```
+docker create \
+      --name subtle \
+      -p 8979:8979 \
+      -e OS_USER=<OpenSubtitles username> \
+      -e OS_PASSWORD=<OpenSubtitles password> \
+      -e PUID=<UID> -e PGID=<GID> \
+      -v <path/to/video-files>:/video \
+      beeksma/subtle:latest
+```
+
+**Parameters**
+
+*Note that when parameters are split into two halves, separated by a colon, the left hand side represents the host and the right the container side.*
+ - ``-p 8979`` The port for Subtle's webinterface
+ - ``-e OS_USER`` Your OpenSubtitles username
+ - ``-e OS_PASSWORD`` Your OpenSubtitles password
+ - ``-e OS_HASH`` Your OpenSubtitles MD5 hash (see below for more information)
+ - ``-e PUID`` The UID used for reading your video folder and saving subtitle files
+ - ``-e PGID`` The GID used for reading your video folder and saving subtitle files
+ - ``-v /video`` Path of your video files on disk
+
+**OS_PASSWORD or OS_HASH?**
+
+ OpenSubtitles uses the MD5 hash of your password for authentication. If you'd rather not specify your password in clear text, get the MD5 hash of your password by running the command below and passing it to the container with environment variable OS_HASH.
+
+``echo -n <your password> | md5sum``
+
+*Note that you should use either OS_PASSWORD or OS_HASH, not both.*
+
+For example:
+
+```
+$ echo -n mypassword | md5sum
+34819d7beeabb9260a5c854bc85b3e44  -
+$ docker create \
+      --name subtle \
+      -p 8979:8979 \
+      -e OS_USER=myusername \
+      -e OS_HASH=34819d7beeabb9260a5c854bc85b3e44 \
+      -e PUID=1000 -e PGID=1000 \
+      -v /mnt/films:/video \
+      beeksma/subtle:latest
+```
+
 ## Installation (Debian/Ubuntu)
 
 Install Python, Pip and Git.
